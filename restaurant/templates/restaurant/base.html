@@ -1,0 +1,17 @@
+<!--restaurant/templates/restaurant/base.html-->
+{% load static %}
+
+<html>
+    <head>
+        <title>Blaise's Bakes</title>
+        <link rel="stylesheet" href="{% static 'restaurant/styles.css' %}">
+    </head>
+    <body>
+        <nav>
+            <a href="{% url 'main' %}">Home</a>
+            <a href="{% url 'orders' %}">Order Here</a>
+        </nav>
+        {% block content %}
+        {% endblock %}
+    </body>
+</html>

@@ -1,0 +1,24 @@
+<!--restaurant/templates/restaurant/main.html-->
+{% extends 'restaurant/base.html' %}
+{% load static %}
+{% block content %}
+        <div>
+            <h2>Welcome to Blaise's Bakes!</h2>
+            <p>
+                Welcome to Blaise's Bakes! Fresh breads, pastries, and cofee daily. We've been established since 2026!
+                <br>
+                We're located in Cornwall, NY!
+            </p>
+
+            <h3>Hours of Operation</h3>
+            <ul>
+                <li>Monday-Friday: 8:30am-4:30pm</li>
+                <li>Saturday: 8am-5pm</li>
+                <li>Sunday: 12pm-3pm</li>
+            </ul>
+
+            <h3>Don't miss our shop!</h3>
+            <img src="{{ image }}" width="300">
+
+        </div>
+{% endblock %}
