@@ -1,0 +1,48 @@
+{% extends "mini_insta/base.html" %}
+
+{% block content %}
+
+<div class="profile-page">
+
+    <img class="profile-large" src="{{ profile.profile_image_url }}">
+
+    <h1>{{ profile.display_name }}</h1>
+    <h3>@{{ profile.username }}</h3>
+
+    <!-- stats bar -->
+    <div class="stats-bar">
+        <div class="stat">
+            <strong>0</strong>
+            <span>Posts</span>
+        </div>
+        <div class="stat">
+            <strong>534</strong>
+            <span>Followers</span>
+        </div>
+        <div class="stat">
+            <strong>180</strong>
+            <span>Following</span>
+        </div>
+    </div>
+
+        <p class="bio">{{ profile.bio_text }}</p>
+        <p class="join">Joined: {{ profile.join_date }}</p>
+
+        <hr class="divider">
+
+        <h2 class="section-title">Posts</h2>
+
+        <div class="post-grid">
+            <div class="post"></div>
+            <div class="post"></div>
+            <div class="post"></div>
+            <div class="post"></div>
+            <div class="post"></div>
+            <div class="post"></div>
+        </div>
+
+
+
+</div>
+
+{% endblock %}
