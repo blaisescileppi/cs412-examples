@@ -1,0 +1,23 @@
+<!-- mini_insta/templates/mini_insta/create_post_form.html -->
+
+{% extends "mini_insta/base.html" %}
+
+{% block content %}
+
+<h2>Create Post for {{ profile.display_name }}</h2>
+
+<form method="POST">
+    {% csrf_token %}
+
+    <label>Caption:</label><br>
+    {{ form.caption }}<br><br>
+
+    <label>Image URL:</label><br>
+    {{ form.image_url }}<br><br>
+
+    <button type="submit">Create Post</button>
+    <a href="{% url 'show_profile' profile.pk %}">Cancel</a>
+
+</form>
+
+{% endblock %}

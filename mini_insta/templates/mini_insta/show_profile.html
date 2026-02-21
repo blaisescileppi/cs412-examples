@@ -1,10 +1,19 @@
+<!-- mini_insta/template/mini_insta/show_profile.html -->
+
 {% extends "mini_insta/base.html" %}
 
 {% block content %}
 
 <div class="profile-page">
 
+
     <img class="profile-large" src="{{ profile.profile_image_url }}">
+
+        <div class="new-post">
+            <a href="{% url 'create_post' profile.pk %}">
+                <button>Create New Post</button>
+             </a>
+        </div>
 
     <h1>{{ profile.display_name }}</h1>
     <h3>@{{ profile.username }}</h3>
@@ -12,7 +21,7 @@
     <!-- stats bar -->
     <div class="stats-bar">
         <div class="stat">
-            <strong>0</strong>
+            <strong>{{ profile.get_all_posts|length }}</strong>
             <span>Posts</span>
         </div>
         <div class="stat">
@@ -33,14 +42,29 @@
         <h2 class="section-title">Posts</h2>
 
         <div class="post-grid">
-            <div class="post"></div>
-            <div class="post"></div>
-            <div class="post"></div>
-            <div class="post"></div>
-            <div class="post"></div>
-            <div class="post"></div>
-        </div>
 
+        {% for post in profile.get_all_posts %}
+
+            <a href="{% url 'show_post' post.pk %}">
+            <div class="post">
+
+
+                {% if post.get_all_photos %}
+                    <img src="{{ post.get_all_photos.0.image_url }}" style="width:150px;height:150px;object-fit:cover;">
+                {% else %}
+                    <img src="https://via.placeholder.com/150">
+                {% endif %}
+
+                <p>{{ post.caption }}</p>
+                <small>{{ post.timestamp }}</small>
+
+            </div>
+        </a>
+
+
+        {% endfor %}
+
+        </div>
 
 
 </div>

@@ -1,0 +1,24 @@
+<!-- mini_insta/template/mini_insta/show_post.html -->
+
+{% extends "mini_insta/base.html" %}
+
+{% block content %}
+
+<h1>Post</h1>
+
+<h2>{{ post.profile.display_name }}</h2>
+<p>{{ post.caption }}</p>
+<p>{{ post.timestamp }}</p>
+
+<hr>
+
+<h3>Photos</h3>
+
+{% for photo in post.get_all_photos %}
+    <img src="{{ photo.image_url }}" style="width:300px;margin:10px;">
+{% endfor %}
+
+<br><br>
+<a href="{% url 'show_profile' post.profile.pk %}">← Back to Profile</a>
+
+{% endblock %}
