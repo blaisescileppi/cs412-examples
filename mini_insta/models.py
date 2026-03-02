@@ -47,6 +47,17 @@ class Profile(models.Model):
     def get_num_following(self):
         return len(self.get_following())
 
+    def get_post_feed(self):
+        from .models import Post, Follow
+
+        following_profiles = Follow.objects.filter(
+            follower_profile=self
+        ).values_list('profile', flat=True)
+
+        return Post.objects.filter(
+            profile__in=following_profiles
+        ).order_by('-timestamp')
+
 
 class Post(models.Model):
     profile = models.ForeignKey("Profile", on_delete=models.CASCADE)

@@ -1,0 +1,14 @@
+<!-- templates/mini_insta/search.html -->
+{% extends "mini_insta/base.html" %}
+{% block content %}
+
+<h1>Search</h1>
+
+<form method="GET">
+    <input type="text" name="query">
+    <button type="submit">Search</button>
+</form>
+
+<a href="{% url 'show_profile' profile.pk %}">Back to Profile</a>
+
+{% endblock %}

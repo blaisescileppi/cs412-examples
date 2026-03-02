@@ -10,6 +10,8 @@ from .models import Profile
 from django.urls import reverse
 from .forms import CreatePostForm, UpdateProfileForm
 from django.views.generic.edit import UpdateView, DeleteView
+from django.views.generic import ListView
+
 
 
 class ProfileListView(ListView):
@@ -109,7 +111,7 @@ class UpdatePostView(UpdateView):
     def get_success_url(self):
         return reverse('show_post', kwargs={'pk': self.object.pk})
     
-    
+
 class ShowFollowersDetailView(DetailView):
     model = Profile
     template_name = "mini_insta/show_followers.html"
@@ -120,3 +122,49 @@ class ShowFollowingDetailView(DetailView):
     model = Profile
     template_name = "mini_insta/show_following.html"
     context_object_name = "profile"
+
+
+class PostFeedListView(ListView):
+    model = Post
+    template_name = "mini_insta/show_feed.html"
+    context_object_name = "posts"
+
+    def get_queryset(self):
+        profile = Profile.objects.get(pk=self.kwargs['pk'])
+        return profile.get_post_feed()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['profile'] = Profile.objects.get(pk=self.kwargs['pk'])
+        return context
+    
+class SearchView(ListView):
+    template_name = "mini_insta/search_results.html"
+    context_object_name = "posts"
+
+    def dispatch(self, request, *args, **kwargs):
+        if 'query' not in request.GET:
+            profile = Profile.objects.get(pk=self.kwargs['pk'])
+            return render(request, "mini_insta/search.html", {"profile": profile})
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        query = self.request.GET.get('query')
+        return Post.objects.filter(caption__icontains=query)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        profile = Profile.objects.get(pk=self.kwargs['pk'])
+        query = self.request.GET.get('query')
+
+        context['profile'] = profile
+        context['query'] = query
+        context['profiles'] = Profile.objects.filter(
+            username__icontains=query
+        ) | Profile.objects.filter(
+            display_name__icontains=query
+        ) | Profile.objects.filter(
+            bio_text__icontains=query
+        )
+
+        return context

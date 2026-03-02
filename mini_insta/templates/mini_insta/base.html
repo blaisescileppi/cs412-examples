@@ -11,6 +11,9 @@
       <h1>Mini Insta</h1>
       <nav>
         <a href="{% url 'show_all_profiles' %}">All Profiles</a>
+        {% if profile %}
+          <a href="{% url 'search' profile.pk %}">Search</a>
+        {% endif %}
       </nav>
       <hr>
     </header>
