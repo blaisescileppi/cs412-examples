@@ -1,0 +1,28 @@
+<!-- mini_insta/templates/mini_insta/update_profile_form.html -->
+
+{% extends "mini_insta/base.html" %}
+
+{% block content %}
+
+<h2>Update Profile</h2>
+
+<form method="POST">
+    {% csrf_token %}
+
+    {% for field in form %}
+        <div>
+            <label>{{ field.label }}</label><br>
+            {{ field }}<br><br>
+        </div>
+    {% endfor %}
+
+    <button type="submit">Save Changes</button>
+</form>
+
+<br>
+
+<a href="{% url 'show_profile' object.pk %}">
+    Cancel
+</a>
+
+{% endblock %}

@@ -4,10 +4,10 @@
 # Includes the Profile model used to store user profile information
 # such as username, display name, profile image URL, bio text, and join date.
 
-from django.db import models
 
 # Create your models here.
 from django.db import models
+from django.urls import reverse
 
 class Profile(models.Model):
     """Represent a Mini Insta user profile."""
@@ -28,6 +28,25 @@ class Profile(models.Model):
     def __str__(self):
         """Return a readable string representation of this Profile."""
         return f"{self.username} ({self.display_name})"
+    
+    def get_absolute_url(self):
+        return reverse('show_profile', kwargs={'pk': self.pk})
+    
+    # adding the accessor mehtods to profile
+    def get_followers(self):
+        follows = Follow.objects.filter(profile=self)
+        return [f.follower_profile for f in follows]
+
+    def get_num_followers(self):
+        return len(self.get_followers())
+
+    def get_following(self):
+        follows = Follow.objects.filter(follower_profile=self)
+        return [f.profile for f in follows]
+
+    def get_num_following(self):
+        return len(self.get_following())
+
 
 class Post(models.Model):
     profile = models.ForeignKey("Profile", on_delete=models.CASCADE)
@@ -38,16 +57,83 @@ class Post(models.Model):
         """
         Return all Photo objects for this Post.
         """
-        return self.photo_set.all().order_by('timestamp')
+        return Photo.objects.filter(post=self)
 
     def __str__(self):
         return f"Post by {self.profile.username} at {self.timestamp}"
+    
+    def get_all_comments(self):
+        return Comment.objects.filter(post=self).order_by('-timestamp')
+    
+    def get_likes(self):
+        return Like.objects.filter(post=self)
 
+    def get_num_likes(self):
+        return self.get_likes().count()
 
 class Photo(models.Model):
-    post = models.ForeignKey("Post", on_delete=models.CASCADE)
-    image_url = models.URLField()
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+
+    image_url = models.URLField(blank=True)
+    image_file = models.ImageField(upload_to='photos/', blank=True)
+
+    # def __str__(self):
+    #     return f"Photo for Post {self.post.pk}"
+
+    def get_image_url(self):
+        """
+        Return the correct URL for this image.
+        Uses image_url if it exists,
+        otherwise uses image_file.
+        """
+        if self.image_url:
+            return self.image_url
+        elif self.image_file:
+            return self.image_file.url
+        return ""
+
+    def __str__(self):
+        if self.image_url:
+            return f"Photo: {self.image_url}"
+        elif self.image_file:
+            return f"Photo file: {self.image_file.name}"
+        return "Photo"
+    
+class Follow(models.Model):
+    """
+    Represents one Profile following another Profile.
+    """
+
+    profile = models.ForeignKey(
+        Profile,
+        on_delete=models.CASCADE,
+        related_name='publisher'
+    )
+
+    follower_profile = models.ForeignKey(
+        Profile,
+        on_delete=models.CASCADE,
+        related_name='subscriber'
+    )
+
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Photo for Post {self.post.pk}"
+        return f"{self.follower_profile.display_name} follows {self.profile.display_name}"
+    
+class Comment(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    text = models.TextField()
+
+    def __str__(self):
+        return f"{self.profile.display_name}: {self.text[:20]}"
+    
+class Like(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.profile.display_name} liked post {self.post.pk}"

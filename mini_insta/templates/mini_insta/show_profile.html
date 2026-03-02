@@ -12,11 +12,16 @@
         <div class="new-post">
             <a href="{% url 'create_post' profile.pk %}">
                 <button>Create New Post</button>
-             </a>
+            </a>
         </div>
 
     <h1>{{ profile.display_name }}</h1>
     <h3>@{{ profile.username }}</h3>
+
+    <!-- shoiwng the profile -->
+    <a href="{% url 'update_profile' profile.pk %}">
+        <button>Edit Profile</button>
+    </a>
 
     <!-- stats bar -->
     <div class="stats-bar">
@@ -24,12 +29,18 @@
             <strong>{{ profile.get_all_posts|length }}</strong>
             <span>Posts</span>
         </div>
+
         <div class="stat">
-            <strong>534</strong>
+            <strong>
+                <a href="{% url 'show_followers' profile.pk %}">{{ profile.get_num_followers }}</a>
+            </strong>
             <span>Followers</span>
         </div>
+
         <div class="stat">
-            <strong>180</strong>
+            <strong>
+                <a href="{% url 'show_following' profile.pk %}">{{ profile.get_num_following }}</a>
+            </strong>
             <span>Following</span>
         </div>
     </div>
@@ -42,15 +53,24 @@
         <h2 class="section-title">Posts</h2>
 
         <div class="post-grid">
-
+        
         {% for post in profile.get_all_posts %}
 
             <a href="{% url 'show_post' post.pk %}">
             <div class="post">
 
-
                 {% if post.get_all_photos %}
-                    <img src="{{ post.get_all_photos.0.image_url }}" style="width:150px;height:150px;object-fit:cover;">
+                    {% with photo=post.get_all_photos.0 %}
+                        {% if photo.image_file %}
+                            <img src="{{ photo.image_file.url }}"
+                                style="width:150px;height:150px;object-fit:cover;">
+                        {% elif photo.image_url %}
+                            <img src="{{ photo.image_url }}"
+                                style="width:150px;height:150px;object-fit:cover;">
+                        {% else %}
+                            <img src="https://via.placeholder.com/150">
+                        {% endif %}
+                    {% endwith %}
                 {% else %}
                     <img src="https://via.placeholder.com/150">
                 {% endif %}
