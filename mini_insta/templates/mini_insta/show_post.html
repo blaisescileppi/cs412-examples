@@ -1,7 +1,5 @@
 <!-- mini_insta/template/mini_insta/show_post.html -->
-
 {% extends "mini_insta/base.html" %}
-
 {% block content %}
 
 <h1>Post</h1>
@@ -12,27 +10,30 @@
 <p>{{ post.caption }}</p>
 <p>{{ post.timestamp }}</p>
 
-<a href="{% url 'delete_post' post.pk %}">Delete Post</a>
-<a href="{% url 'update_post' post.pk %}">Update Post</a>
+{% if request.user.is_authenticated and request.user == post.profile.user %}
+    <a href="{% url 'delete_post' post.pk %}">Delete Post</a>
+    <a href="{% url 'update_post' post.pk %}">Update Post</a>
+{% elif request.user.is_authenticated %}
+    <a href="{% url 'like' post.pk %}">Like</a>
+    <a href="{% url 'delete_like' post.pk %}">Unlike</a>
+{% endif %}
 
 <h3>Comments</h3>
-
-    {% for comment in post.get_all_comments %}
-        <p>
-            <strong>{{ comment.profile.display_name }}</strong>:
-            {{ comment.text }}
-        </p>
-    {% empty %}
-        <p>No comments yet.</p>
-    {% endfor %}
+{% for comment in post.get_all_comments %}
+    <p><strong>{{ comment.profile.display_name }}</strong>: {{ comment.text }}</p>
+{% empty %}
+    <p>No comments yet.</p>
+{% endfor %}
 
 <hr>
 
 <h3>Photos</h3>
-
 {% for photo in post.get_all_photos %}
-    <!-- <img src="{{ photo.get_image_url }}" style="width:300px;"> -->
-    <img src="{{ photo.image_file.url }}" style="width:300px;">
+    {% if photo.image_file %}
+        <img src="{{ photo.image_file.url }}" style="width:300px;">
+    {% elif photo.image_url %}
+        <img src="{{ photo.image_url }}" style="width:300px;">
+    {% endif %}
 {% endfor %}
 
 <br><br>

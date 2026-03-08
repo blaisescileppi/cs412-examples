@@ -8,10 +8,12 @@
 # Create your models here.
 from django.db import models
 from django.urls import reverse
+from django.contrib.auth.models import User
 
 class Profile(models.Model):
     """Represent a Mini Insta user profile."""
 
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     username = models.TextField(blank=False)
     display_name = models.TextField(blank=False)
     profile_image_url = models.URLField(blank=True)
@@ -19,20 +21,14 @@ class Profile(models.Model):
     join_date = models.DateField(auto_now_add=True)
 
     def get_all_posts(self):
-        """
-        Return all Post objects for this Profile,
-        ordered newest first.
-        """
         return self.post_set.all().order_by('-timestamp')
-    
+
     def __str__(self):
-        """Return a readable string representation of this Profile."""
         return f"{self.username} ({self.display_name})"
-    
+
     def get_absolute_url(self):
         return reverse('show_profile', kwargs={'pk': self.pk})
-    
-    # adding the accessor mehtods to profile
+
     def get_followers(self):
         follows = Follow.objects.filter(profile=self)
         return [f.follower_profile for f in follows]
@@ -48,8 +44,6 @@ class Profile(models.Model):
         return len(self.get_following())
 
     def get_post_feed(self):
-        from .models import Post, Follow
-
         following_profiles = Follow.objects.filter(
             follower_profile=self
         ).values_list('profile', flat=True)
@@ -57,7 +51,6 @@ class Profile(models.Model):
         return Post.objects.filter(
             profile__in=following_profiles
         ).order_by('-timestamp')
-
 
 class Post(models.Model):
     profile = models.ForeignKey("Profile", on_delete=models.CASCADE)
