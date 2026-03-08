@@ -13,7 +13,8 @@ from django.contrib.auth.models import User
 class Profile(models.Model):
     """Represent a Mini Insta user profile."""
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    # user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     username = models.TextField(blank=False)
     display_name = models.TextField(blank=False)
     profile_image_url = models.URLField(blank=True)
