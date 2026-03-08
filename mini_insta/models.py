@@ -79,7 +79,7 @@ class Photo(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
 
     image_url = models.URLField(blank=True)
-    image_file = models.ImageField(upload_to='photos/', blank=True)
+    image_file = models.ImageField(upload_to='photos/', blank=True, null=True)
 
     # def __str__(self):
     #     return f"Photo for Post {self.post.pk}"

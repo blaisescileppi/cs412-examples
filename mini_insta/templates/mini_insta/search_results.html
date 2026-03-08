@@ -5,20 +5,25 @@
 <h1>Search Results</h1>
 
 <h2>Profiles</h2>
-{% for p in profiles %}
-    <p>{{ p.display_name }}</p>
-{% empty %}
-    <p>No profiles found.</p>
-{% endfor %}
+    {% for profile in profiles %}
+        <p>
+            <a href="{% url 'show_profile' profile.pk %}">
+                {{ profile.display_name }} (@{{ profile.username }})
+            </a>
+        </p>
+    {% empty %}
+        <p>No profiles found.</p>
+    {% endfor %}
+
 
 <h2>Posts</h2>
-{% for post in posts %}
-    <p>{{ post.profile.display_name }}: {{ post.caption }}</p>
-{% empty %}
-    <p>No posts found.</p>
-{% endfor %}
+    {% for post in posts %}
+        <p>{{ post.profile.display_name }}: {{ post.caption }}</p>
+    {% empty %}
+        <p>No posts found.</p>
+    {% endfor %}
 
-<a href="{% url 'search' profile.pk %}">New Search</a>
+<a href="{% url 'search' %}">New Search</a>
 <a href="{% url 'show_profile' profile.pk %}">Back to Profile</a>
 
 {% endblock %}

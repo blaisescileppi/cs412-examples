@@ -8,34 +8,43 @@
     <h1>{{ profile.display_name }}</h1>
     <h3>@{{ profile.username }}</h3>
 
-    {% if request.user.is_authenticated and request.user == profile.user %}
-        <div class="new-post">
-            <a href="{% url 'create_post' %}">
-                <button>Create New Post</button>
-            </a>
-        </div>
+    {% if request.user.is_authenticated %}
 
-        <a href="{% url 'update_profile' %}">
-            <button>Edit Profile</button>
-        </a>
+        {% if request.user == profile.user %}
 
-        <a href="{% url 'show_feed' %}">
-            <button>View Feed</button>
-        </a>
-    {% elif request.user.is_authenticated %}
-        {% if request.user != profile.user %}
-            <a href="{% url 'follow' profile.pk %}">
-                <button>Follow</button>
+            <div class="new-post">
+                <a href="{% url 'create_post' %}">
+                    <button>Create New Post</button>
+                </a>
+            </div>
+
+            <a href="{% url 'update_profile' %}">
+                <button>Edit Profile</button>
             </a>
-            <a href="{% url 'delete_follow' profile.pk %}">
-                <button>Unfollow</button>
+
+            <a href="{% url 'show_feed' %}">
+                <button>View Feed</button>
             </a>
+
+        {% else %}
+
+            {% if is_following %}
+                <a href="{% url 'delete_follow' profile.pk %}">
+                    <button>Unfollow</button>
+                </a>
+            {% else %}
+                <a href="{% url 'follow' profile.pk %}">
+                    <button>Follow</button>
+                </a>
+            {% endif %}
+
         {% endif %}
+
     {% endif %}
 
     <div class="stats-bar">
         <div class="stat">
-            <strong>{{ profile.get_all_posts|length }}</strong>
+            <strong>{{ profile.get_all_posts.count }}</strong>
             <span>Posts</span>
         </div>
 

@@ -24,7 +24,7 @@ class UserOwnsProfileMixin(LoginRequiredMixin):
         # return Profile.objects.get(user=self.request.user)
         return Profile.objects.filter(user=self.request.user).first()
     
-    
+
 class ProfileListView(ListView):
     model = Profile
     template_name = "mini_insta/show_all_profiles.html"
@@ -36,6 +36,24 @@ class ProfileDetailView(DetailView):
     template_name = "mini_insta/show_profile.html"
     context_object_name = "profile"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        if self.request.user.is_authenticated:
+            user_profile = Profile.objects.filter(user=self.request.user).first()
+
+            if user_profile:
+                context["is_following"] = Follow.objects.filter(
+                    profile=self.object,
+                    follower_profile=user_profile
+                ).exists()
+            else:
+                context["is_following"] = False
+        else:
+            context["is_following"] = False
+
+        return context
+    
 
 class MyProfileView(UserOwnsProfileMixin, DetailView):
     model = Profile
@@ -93,12 +111,12 @@ class DeletePostView(UserOwnsProfileMixin, DeleteView):
     model = Post
     template_name = "mini_insta/delete_post_form.html"
 
-    def get_queryset(self):
-            query = self.request.GET.get('query')
+    # def get_queryset(self):
+    #         query = self.request.GET.get('query')
 
-            if not query:
-                return Post.objects.none()
-            return Post.objects.filter(caption__icontains=query)
+    #         if not query:
+    #             return Post.objects.none()
+    #         return Post.objects.filter(caption__icontains=query)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -108,6 +126,10 @@ class DeletePostView(UserOwnsProfileMixin, DeleteView):
 
     def get_success_url(self):
         return reverse('show_profile', kwargs={'pk': self.get_user_profile().pk})
+    
+    def get_queryset(self):
+        profile = self.get_user_profile()
+        return Post.objects.filter(profile=profile)
 
 
 class UpdatePostView(UserOwnsProfileMixin, UpdateView):
