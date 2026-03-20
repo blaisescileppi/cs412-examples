@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'restaurant', # assignment 2
     'blog', # assignment 3 practice
     'mini_insta', #assignmnet 3
+    'voter_analytics', #assignment 7
 ]
 
 MIDDLEWARE = [
