@@ -31,6 +31,7 @@ urlpatterns = [
     path('restaurant/', include("restaurant.urls")), # assignment 2
     path('blog/', include("blog.urls")), # assignment 3 example
     path('mini_insta/', include("mini_insta.urls")), # assignment 3
+    path('voter_analytics/', include("voter_analytics.urls")), #assignment 7
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
