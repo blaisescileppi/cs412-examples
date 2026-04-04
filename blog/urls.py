@@ -19,4 +19,8 @@ urlpatterns = [
     path('create_comment', CreateCommentView.as_view(), name='create_comment'), ### FIRST (WITHOUT PK)
     path('article/<int:pk>/create_comment', CreateCommentView.as_view(), name='create_comment'), ### NEW
     path('article/create', CreateArticleView.as_view(), name="create_article"), # new
+
+    # REST API VIEWS
+    path('api/articles', ArticleListAPIView.as_view(), name='api_show_all'), # not gonna call the name ever
+    path('api/article/<int:pk>', ArticleDetailAPIVoew.as_view(), name='api_article'), # a specific article using pk
 ]

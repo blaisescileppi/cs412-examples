@@ -1,0 +1,25 @@
+<!-- dadjokes/templates/dadjokes/home.html used as the homepage of the app-->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dad Jokes</title>
+</head>
+<body>
+    <h1>Random Joke and Picture</h1>
+
+    {% if joke %}
+        <h2>Joke</h2>
+        <p>{{ joke.text }}</p>
+        <p>Added by {{ joke.contributor }}</p>
+    {% endif %}
+
+    {% if picture %}
+        <h2>Picture</h2>
+        <img src="{{ picture.image_url }}" width="300">
+        <p>Added by {{ picture.contributor }}</p>
+    {% endif %}
+
+    <p><a href="{% url 'jokes' %}">All Jokes</a></p>
+    <p><a href="{% url 'pictures' %}">All Pictures</a></p>
+</body>
+</html>

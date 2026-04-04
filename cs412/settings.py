@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'blog', # assignment 3 practice
     'mini_insta', #assignmnet 3
     'voter_analytics', #assignment 7
+    'rest_framework', # REST API
+    'dadjokes', #assignment 9
 ]
 
 MIDDLEWARE = [

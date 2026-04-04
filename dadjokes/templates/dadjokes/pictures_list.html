@@ -1,0 +1,18 @@
+<!--dadjokes/templates/dadjokes/pictures_list.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All Pictures</title>
+</head>
+<body>
+    <h1>All Pictures</h1>
+    {% for picture in pictures %}
+        <p>
+            <a href="{% url 'picture_detail' picture.pk %}">Picture {{ picture.pk }}</a><br>
+            added by {{ picture.contributor }}
+        </p>
+        <img src="{{ picture.image_url }}" width="250">
+        <hr>
+    {% endfor %}
+</body>
+</html>
