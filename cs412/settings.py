@@ -144,3 +144,9 @@ CS_DEPLOYMENT_HOSTNAME = 'cs-webapps.bu.edu'
 if socket.gethostname() == CS_DEPLOYMENT_HOSTNAME:
     STATIC_URL = '/blaises/static/'
     MEDIA_URL = '/blaises/media/'
+
+# REST_FRAMEWORK = {
+#     'DEFAULT_PAGINATION_CLASS':
+#     'rest_framework.pagination.PageNumberPagination',
+#     'PAGE_SIZE':
+# }

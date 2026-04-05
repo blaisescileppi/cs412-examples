@@ -19,5 +19,4 @@ urlpatterns = [
     path('api/pictures', views.api_pictures, name='api_pictures'),
     path('api/picture/<int:pk>', views.api_picture_detail, name='api_picture_detail'),
     path('api/random_picture', views.api_random_picture, name='api_random_picture'),
-
 ]
