@@ -1,0 +1,36 @@
+<!--restaurant/templates/restaurant/confirmation.html-->
+{% extends 'restaurant/base.html' %}
+
+{% block content %}
+
+<div>
+    <h1>Order Confirmation</h1>
+
+    <p>
+        Thank you, <strong>{{ name }}</strong>!
+    </p>
+
+        {% if selected_items %}
+        <h2>You ordered:</h2>
+
+        <ul>
+        {% for item, price in s %}
+        <li>{{ item }} — ${{ price }}</li>
+        {% endfor %}
+        </ul>
+
+        <h3>Total: ${{ total }}</h3>
+
+    {% else %}
+        <p>You did not select any items.</p>
+    {% endif %}
+
+    <h2>Your order will be ready at {{ ready_time }}</h2>
+
+
+    <br>
+    <a href="{% url 'orders' %}">Place another order</a>
+
+</div>
+
+{% endblock %}

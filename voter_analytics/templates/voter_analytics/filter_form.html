@@ -1,0 +1,66 @@
+<!--voter_analytics/templates/voter_analytics/filter_form.html-->
+<form method="get" class="filter-card">
+  <div class="filter-grid">
+    <div>
+      <label for="party">Party Affiliation</label>
+      <select name="party" id="party">
+        <option value="">All</option>
+        {% for party in parties %}
+          <option value="{{ party }}" {% if current_filters.party == party %}selected{% endif %}>
+            {{ party }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label for="score">Voter Score</label>
+      <select name="score" id="score">
+        <option value="">Any</option>
+        {% for s in scores %}
+          <option value="{{ s }}" {% if current_filters.score == s|stringformat:"s" %}selected{% endif %}>
+            {{ s }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label for="min_year">Min Birth Year</label>
+      <select name="min_year" id="min_year">
+        <option value="">Any</option>
+        {% for y in years %}
+          <option value="{{ y }}" {% if current_filters.min_year == y|stringformat:"s" %}selected{% endif %}>
+            {{ y }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label for="max_year">Max Birth Year</label>
+      <select name="max_year" id="max_year">
+        <option value="">Any</option>
+        {% for y in years %}
+          <option value="{{ y }}" {% if current_filters.max_year == y|stringformat:"s" %}selected{% endif %}>
+            {{ y }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <fieldset class="checkbox-group">
+    <legend>Previous Election Participation</legend>
+    <label><input type="checkbox" name="v20state" {% if current_filters.v20state %}checked{% endif %}> v20state</label>
+    <label><input type="checkbox" name="v21town" {% if current_filters.v21town %}checked{% endif %}> v21town</label>
+    <label><input type="checkbox" name="v21primary" {% if current_filters.v21primary %}checked{% endif %}> v21primary</label>
+    <label><input type="checkbox" name="v22general" {% if current_filters.v22general %}checked{% endif %}> v22general</label>
+    <label><input type="checkbox" name="v23town" {% if current_filters.v23town %}checked{% endif %}> v23town</label>
+  </fieldset>
+
+  <div class="button-row">
+    <button type="submit" class="btn btn-primary">Apply Filters</button>
+    <a href="{{ request.path }}" class="btn btn-secondary">Clear</a>
+  </div>
+</form>

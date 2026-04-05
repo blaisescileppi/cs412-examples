@@ -1,0 +1,28 @@
+<!--voter_analytics/templates/voter_analytics/graphs.html-->
+
+{% extends 'voter_analytics/base.html' %}
+
+{% block content %}
+<section class="hero-card">
+  <h2>Voter Graphs</h2>
+  <p>Visual summaries of the currently filtered voter population.</p>
+</section>
+
+{% include 'voter_analytics/filter_form.html' %}
+
+<section class="results-header">
+  <p><strong>{{ result_count }}</strong> voters matched the current filters.</p>
+</section>
+
+<div class="graph-card">
+  {{ birth_year_graph|safe }}
+</div>
+
+<div class="graph-card">
+  {{ party_graph|safe }}
+</div>
+
+<div class="graph-card">
+  {{ election_graph|safe }}
+</div>
+{% endblock %}

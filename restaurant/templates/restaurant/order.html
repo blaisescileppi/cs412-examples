@@ -1,0 +1,54 @@
+<!--restaurant/templates/restaurant/order.html-->
+{% extends 'restaurant/base.html' %}
+
+ {% block content %}
+<div>
+    <h1>What would you like to order?</h1>
+        <form action="{% url 'confirmation' %}" method="POST">
+            {% csrf_token %}
+            
+            <p>Hi! What's your name?: <input type="text" name="name"></p>
+
+            <h2>Breads</h2>
+            {% for item, price in breads %}
+            <label>
+                <input type="checkbox" name="breads" value="{{ item }}">
+                {{ item }} — ${{ price }}
+            </label><br>
+            {% endfor %}
+
+            <h2>Spreads</h2>
+            {% for item, price in spreads %}
+            <label>
+                <input type="checkbox" name="spreads" value="{{ item }}">
+                {{ item }} - ${{ price }}
+            </label><br>
+            {% endfor %}
+
+            <h2>Baked Goods</h2>
+            {% for item, price in baked_goods %}
+            <label>
+                <input type="checkbox" name="baked_goods" value="{{ item }}">
+                {{ item }} - ${{ price }}
+            </label><br>
+            {% endfor %}
+
+            <h2>Drinks</h2>
+            {% for item, price in drinks %}
+            <label>
+                <input type="checkbox" name="drinks" value="{{ item }}">
+                {{ item }} - ${{ price }}
+            </label><br>
+            {% endfor %}
+
+            <h2>Random Special</h2>
+            <label>
+                <input type="checkbox" name="special" value="{{ daily_special.0 }}">
+                {{ daily_special.0 }} - ${{ daily_special.1 }}
+            </label><br>
+
+            <br><br>
+            <button type="submit">Place Order</button>
+        </form>
+
+{% endblock %}

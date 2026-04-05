@@ -1,0 +1,90 @@
+<!-- mini_insta/template/mini_insta/show_profile.html -->
+{% extends "mini_insta/base.html" %}
+{% block content %}
+
+<div class="profile-page">
+    <img class="profile-large" src="{{ profile.profile_image_url }}">
+
+    <h1>{{ profile.display_name }}</h1>
+    <h3>@{{ profile.username }}</h3>
+
+    {% if request.user.is_authenticated %}
+
+        {% if request.user == profile.user %}
+
+            <div class="new-post">
+                <a href="{% url 'create_post' %}">
+                    <button>Create New Post</button>
+                </a>
+            </div>
+
+            <a href="{% url 'update_profile' %}">
+                <button>Edit Profile</button>
+            </a>
+
+            <a href="{% url 'show_feed' %}">
+                <button>View Feed</button>
+            </a>
+
+        {% else %}
+
+            {% if is_following %}
+                <a href="{% url 'delete_follow' profile.pk %}">
+                    <button>Unfollow</button>
+                </a>
+            {% else %}
+                <a href="{% url 'follow' profile.pk %}">
+                    <button>Follow</button>
+                </a>
+            {% endif %}
+
+        {% endif %}
+
+    {% endif %}
+
+    <div class="stats-bar">
+        <div class="stat">
+            <strong>{{ profile.get_all_posts.count }}</strong>
+            <span>Posts</span>
+        </div>
+
+        <div class="stat">
+            <strong><a href="{% url 'show_followers' profile.pk %}">{{ profile.get_num_followers }}</a></strong>
+            <span>Followers</span>
+        </div>
+
+        <div class="stat">
+            <strong><a href="{% url 'show_following' profile.pk %}">{{ profile.get_num_following }}</a></strong>
+            <span>Following</span>
+        </div>
+    </div>
+
+    <p class="bio">{{ profile.bio_text }}</p>
+    <p class="join">Joined: {{ profile.join_date }}</p>
+
+    <hr class="divider">
+
+    <h2 class="section-title">Posts</h2>
+
+    <div class="post-grid">
+        {% for post in profile.get_all_posts %}
+            <a href="{% url 'show_post' post.pk %}">
+                <div class="post">
+                    {% if post.get_all_photos %}
+                        {% with photo=post.get_all_photos.0 %}
+                            {% if photo.image_file %}
+                                <img src="{{ photo.image_file.url }}" style="width:150px;height:150px;object-fit:cover;">
+                            {% elif photo.image_url %}
+                                <img src="{{ photo.image_url }}" style="width:150px;height:150px;object-fit:cover;">
+                            {% endif %}
+                        {% endwith %}
+                    {% endif %}
+                    <p>{{ post.caption }}</p>
+                    <small>{{ post.timestamp }}</small>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

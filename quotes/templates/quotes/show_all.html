@@ -1,0 +1,39 @@
+<!-- quotes/templates/quotes/show_all.html-->
+{% extends 'quotes/base.html' %}
+
+{% block title %}All Quotes & Images{% endblock %}
+
+{% block content %}
+<head>
+    <section class="card">
+        <h1>
+            '
+
+
+            
+        </h1>
+    </section>
+</head>
+
+<section class="card">
+    <h2 class="page-title">All Quotes</h2>
+
+    <ol class="quote-list">
+      {% for q in quotes %}
+        <li class="quote-item">“{{ q }}”</li>
+      {% endfor %}
+    </ol>
+  </section>
+
+  <section class="card">
+    <h2 class="page-title">All Images</h2>
+
+    <div class="image-grid">
+      {% for img in images %}
+        <div class="image-cell">
+          <img class="person-img" src="{{ img }}" alt="Famous person image {{ forloop.counter }}" width="300">
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

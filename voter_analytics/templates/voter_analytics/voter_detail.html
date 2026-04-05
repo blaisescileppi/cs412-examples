@@ -1,0 +1,36 @@
+<!--voter_analytics/templates/voter_analytics/voter_detail.html-->
+
+{% extends 'voter_analytics/base.html' %}
+
+{% block content %}
+<section class="hero-card">
+  <h2>{{ voter.first_name }} {{ voter.last_name }}</h2>
+  <p>Precinct {{ voter.precinct_number }} · Party {{ voter.party_affiliation }} · Voter score {{ voter.voter_score }}</p>
+</section>
+
+<div class="detail-grid">
+  <div class="detail-card">
+    <h3>Address</h3>
+    <p>{{ voter.full_address }}</p>
+    <a class="btn btn-primary" href="{{ voter.google_maps_url }}" target="_blank">Open in Google Maps</a>
+  </div>
+
+  <div class="detail-card">
+    <h3>Registration Info</h3>
+    <p><strong>Date of Birth:</strong> {{ voter.date_of_birth|date:"F j, Y" }}</p>
+    <p><strong>Registered:</strong> {{ voter.date_of_registration|date:"F j, Y" }}</p>
+    <p><strong>Voter ID:</strong> {{ voter.voter_id }}</p>
+  </div>
+</div>
+
+<div class="detail-card">
+  <h3>Election Participation</h3>
+  <ul class="clean-list">
+    <li>v20state: {{ voter.v20state }}</li>
+    <li>v21town: {{ voter.v21town }}</li>
+    <li>v21primary: {{ voter.v21primary }}</li>
+    <li>v22general: {{ voter.v22general }}</li>
+    <li>v23town: {{ voter.v23town }}</li>
+  </ul>
+</div>
+{% endblock %}

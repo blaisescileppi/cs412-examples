@@ -1,0 +1,17 @@
+<!--dadjokes/templates/dadjokes/jokes_list.html use forloop to loop through all jokes made-->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All Jokes</title>
+</head>
+<body>
+    <h1>All Jokes</h1>
+    {% for joke in jokes %}
+        <p>
+            <a href="{% url 'joke_detail' joke.pk %}">{{ joke.text|truncatechars:60 }}</a><br>
+            added by {{ joke.contributor }}
+        </p>
+        <hr>
+    {% endfor %}
+</body>
+</html>
