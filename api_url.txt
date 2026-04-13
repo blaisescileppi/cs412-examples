@@ -1,1 +1,1 @@
-https://cs-webapps.bu.edu/yourpath/dadjokes/api
+https://cs-webapps.bu.edu/blaises/dadjokes/api

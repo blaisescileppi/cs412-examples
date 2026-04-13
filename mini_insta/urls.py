@@ -13,10 +13,24 @@ from .views import (
     ProfileListView, ProfileDetailView, MyProfileView, PostDetailView,
     CreatePostView, UpdateProfileView, DeletePostView, UpdatePostView,
     ShowFollowersDetailView, ShowFollowingDetailView, PostFeedListView,
-    SearchView, CreateProfileView, FollowView, UnfollowView, LikeView, UnlikeView
+    SearchView, CreateProfileView, FollowView, UnfollowView, LikeView, UnlikeView,
+    api_token, api_profiles, api_profile_detail, api_profile_posts,
+    api_profile_feed, api_create_post, api_search_profiles,
+    api_follow, api_unfollow,
 )
 
 urlpatterns = [
+    # REST API endpoints (assignment 10)
+    path("api/token", api_token, name="api_token"),
+    path("api/profiles/", api_profiles, name="api_profiles"),
+    path("api/profiles/<int:pk>/", api_profile_detail, name="api_profile_detail"),
+    path("api/profiles/<int:pk>/posts/", api_profile_posts, name="api_profile_posts"),
+    path("api/profiles/<int:pk>/feed/", api_profile_feed, name="api_profile_feed"),
+    path("api/post/", api_create_post, name="api_create_post"),
+    path("api/search/", api_search_profiles, name="api_search_profiles"),
+    path("api/profiles/<int:pk>/follow/", api_follow, name="api_follow"),
+    path("api/profiles/<int:pk>/unfollow/", api_unfollow, name="api_unfollow"),
+
     path("", ProfileListView.as_view(), name="show_all_profiles"),
 
     path("profile/<int:pk>", ProfileDetailView.as_view(), name="show_profile"),
