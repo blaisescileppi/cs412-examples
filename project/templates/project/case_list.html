@@ -1,0 +1,36 @@
+<!--project/templates/project/case_list.html-->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All Cases</title>
+</head>
+<body>
+    <h1>Medical Mystery Solver</h1>
+
+    <nav>
+        <a href="{% url 'case_list' %}">Cases</a> |
+        <a href="{% url 'condition_list' %}">Conditions</a> |
+        <a href="{% url 'symptom_list' %}">Symptoms</a> |
+        <a href="/admin/">Admin</a>
+    </nav>
+
+    <hr>
+
+    <h2>All Cases</h2>
+
+    {% if cases %}
+        <ul>
+            {% for case in cases %}
+                <li>
+                    <a href="{% url 'case_detail' case.pk %}">
+                        {{ case.title }}
+                    </a>
+                    — {{ case.patient_alias }} — {{ case.case_status }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No cases have been added yet.</p>
+    {% endif %}
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!--project/templates/project/case_detail.html-->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ case.title }}</title>
+</head>
+<body>
+    <h1>{{ case.title }}</h1>
+
+    <nav>
+        <a href="{% url 'case_list' %}">Cases</a> |
+        <a href="{% url 'condition_list' %}">Conditions</a> |
+        <a href="{% url 'symptom_list' %}">Symptoms</a>
+    </nav>
+
+    <hr>
+
+    <p><strong>Patient Alias:</strong> {{ case.patient_alias }}</p>
+    <p><strong>Age:</strong> {{ case.age }}</p>
+    <p><strong>Sex:</strong> {{ case.sex }}</p>
+    <p><strong>Status:</strong> {{ case.case_status }}</p>
+    <p><strong>Chief Complaint:</strong> {{ case.chief_complaint }}</p>
+    <p><strong>Date Started:</strong> {{ case.date_started }}</p>
+    <p><strong>Notes:</strong> {{ case.notes }}</p>
+
+    <p><a href="{% url 'case_list' %}">Back to all cases</a></p>
+</body>
+</html>

@@ -46,7 +46,9 @@ INSTALLED_APPS = [
     'mini_insta', #assignmnet 3
     'voter_analytics', #assignment 7
     'rest_framework', # REST API
+    'rest_framework.authtoken', # token auth for mini_insta api
     'dadjokes', #assignment 9
+    'project', # final project assignment
 ]
 
 MIDDLEWARE = [

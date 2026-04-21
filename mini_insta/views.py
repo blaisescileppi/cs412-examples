@@ -13,6 +13,16 @@ from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from .forms import CreatePostForm, UpdateProfileForm, CreateProfileForm
 
+# REST API imports
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import authenticate
+from .serializers import ProfileSerializer, PostSerializer
+
 
 class UserOwnsProfileMixin(LoginRequiredMixin):
     """Require login and provide helper methods for the logged-in user's profile."""
@@ -274,3 +284,133 @@ class UnlikeView(UserOwnsProfileMixin, TemplateView):
         Like.objects.filter(post=post, profile=current_profile).delete()
 
         return redirect('show_post', pk=post.pk)
+
+
+# REST API views (assignment 10)
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def api_token(request):
+    """Login endpoint - returns auth token and profile id."""
+    username = request.data.get('username')
+    password = request.data.get('password')
+
+    user = authenticate(username=username, password=password)
+
+    if user is not None:
+        token, created = Token.objects.get_or_create(user=user)
+        profile = Profile.objects.filter(user=user).first()
+        profile_id = profile.pk if profile else None
+        return Response({'token': token.key, 'profile_id': profile_id})
+    else:
+        return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def api_profiles(request):
+    """Return list of all profiles."""
+    profiles = Profile.objects.all()
+    serializer = ProfileSerializer(profiles, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def api_profile_detail(request, pk):
+    """Return a single profile."""
+    profile = get_object_or_404(Profile, pk=pk)
+    serializer = ProfileSerializer(profile)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def api_profile_posts(request, pk):
+    """Return all posts for a given profile."""
+    profile = get_object_or_404(Profile, pk=pk)
+    posts = profile.get_all_posts()
+    serializer = PostSerializer(posts, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def api_profile_feed(request, pk):
+    """Return the feed for a given profile (posts from people they follow)."""
+    profile = get_object_or_404(Profile, pk=pk)
+    posts = profile.get_post_feed()
+    serializer = PostSerializer(posts, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def api_create_post(request):
+    """Create a new post for the logged in user."""
+    profile = get_object_or_404(Profile, user=request.user)
+    caption = request.data.get('caption', '')
+    image_url = request.data.get('image_url', '')
+
+    post = Post.objects.create(profile=profile, caption=caption)
+
+    if image_url:
+        Photo.objects.create(post=post, image_url=image_url)
+
+    serializer = PostSerializer(post)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def api_search_profiles(request):
+    """Search profiles by username or display name."""
+    q = request.GET.get('q', '').strip()
+    if not q:
+        return Response([])
+
+    my_profile = get_object_or_404(Profile, user=request.user)
+    profiles = (
+        Profile.objects.filter(username__icontains=q) |
+        Profile.objects.filter(display_name__icontains=q)
+    ).exclude(pk=my_profile.pk).distinct()
+
+    result = []
+    for p in profiles:
+        data = ProfileSerializer(p).data
+        data['is_following'] = Follow.objects.filter(
+            profile=p, follower_profile=my_profile
+        ).exists()
+        result.append(data)
+
+    return Response(result)
+
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def api_follow(request, pk):
+    """Follow another profile."""
+    my_profile = get_object_or_404(Profile, user=request.user)
+    other_profile = get_object_or_404(Profile, pk=pk)
+
+    if my_profile != other_profile:
+        Follow.objects.get_or_create(profile=other_profile, follower_profile=my_profile)
+
+    return Response({'status': 'following'})
+
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def api_unfollow(request, pk):
+    """Unfollow a profile."""
+    my_profile = get_object_or_404(Profile, user=request.user)
+    other_profile = get_object_or_404(Profile, pk=pk)
+
+    Follow.objects.filter(profile=other_profile, follower_profile=my_profile).delete()
+
+    return Response({'status': 'unfollowed'})

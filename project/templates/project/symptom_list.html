@@ -1,0 +1,30 @@
+<!--project/templates/project/symptom_list.html-->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Symptoms</title>
+</head>
+<body>
+    <h1>All Symptoms</h1>
+
+    <nav>
+        <a href="{% url 'case_list' %}">Cases</a> |
+        <a href="{% url 'condition_list' %}">Conditions</a> |
+        <a href="{% url 'symptom_list' %}">Symptoms</a>
+    </nav>
+
+    <hr>
+
+    {% if symptoms %}
+        <ul>
+            {% for symptom in symptoms %}
+                <li>
+                    {{ symptom.name }} — {{ symptom.body_system }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No symptoms found.</p>
+    {% endif %}
+</body>
+</html>

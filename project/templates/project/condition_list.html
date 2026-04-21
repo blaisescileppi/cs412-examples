@@ -1,0 +1,30 @@
+<!--project/templates/project/condition_list.html-->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Conditions</title>
+</head>
+<body>
+    <h1>All Conditions</h1>
+
+    <nav>
+        <a href="{% url 'case_list' %}">Cases</a> |
+        <a href="{% url 'condition_list' %}">Conditions</a> |
+        <a href="{% url 'symptom_list' %}">Symptoms</a>
+    </nav>
+
+    <hr>
+
+    {% if conditions %}
+        <ul>
+            {% for condition in conditions %}
+                <li>
+                    {{ condition.name }} — {{ condition.category }} — Red Flag: {{ condition.red_flag_level }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No conditions found.</p>
+    {% endif %}
+</body>
+</html>

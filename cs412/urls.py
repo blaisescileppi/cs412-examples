@@ -34,6 +34,7 @@ urlpatterns = [
     path('voter_analytics/', include("voter_analytics.urls")), #assignment 7
     path('admin/', admin.site.urls),
     path('dadjokes/', include('dadjokes.urls')),
+    path('project/', include("project.urls")), # final assignment
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
