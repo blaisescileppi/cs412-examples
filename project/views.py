@@ -17,6 +17,8 @@ from django.utils import timezone
 from django.db.models import Q, Count
 from datetime import timedelta
 
+from django.db import IntegrityError # will fix appointment booking??
+
 from .models import (
     DoctorProfile, PatientProfile,
     Case, CaseSymptom, Evidence, CaseCondition,
@@ -1152,9 +1154,13 @@ def request_appointment(request, slot_pk):
                 return redirect("patient_booking")
 
             slot.is_booked = True
-            slot.save()
+            try:
+                appt.save()
+            except IntegrityError:
+                slot.is_booked = True
+                slot.save()
+                return redirect("patient_booking")
 
-            return redirect("patient_appointments")
     else:
         form = AppointmentRequestForm()
 
