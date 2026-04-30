@@ -13,6 +13,7 @@ from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from .forms import CreatePostForm, UpdateProfileForm, CreateProfileForm
 
+<<<<<<< HEAD
 # REST API imports
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
@@ -22,6 +23,18 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 from .serializers import ProfileSerializer, PostSerializer
+=======
+# REST API imports                                             
+from rest_framework.decorators import api_view, authentication_classes, permission_classes                                    
+from rest_framework.response import Response                   
+from rest_framework import status                              
+from rest_framework.authentication import TokenAuthentication  
+from rest_framework.permissions import IsAuthenticated, AllowAny                                                              
+from rest_framework.authtoken.models import Token              
+from django.contrib.auth import authenticate                   
+from .serializers import ProfileSerializer, PostSerializer     
+
+>>>>>>> 500da4a7324bad97e7257c5c3840a2c1c9973be7
 
 
 class UserOwnsProfileMixin(LoginRequiredMixin):
@@ -284,8 +297,12 @@ class UnlikeView(UserOwnsProfileMixin, TemplateView):
         Like.objects.filter(post=post, profile=current_profile).delete()
 
         return redirect('show_post', pk=post.pk)
+<<<<<<< HEAD
 
 
+=======
+    
+>>>>>>> 500da4a7324bad97e7257c5c3840a2c1c9973be7
 # REST API views (assignment 10)
 
 @api_view(['POST'])
@@ -413,4 +430,8 @@ def api_unfollow(request, pk):
 
     Follow.objects.filter(profile=other_profile, follower_profile=my_profile).delete()
 
+<<<<<<< HEAD
     return Response({'status': 'unfollowed'})
+=======
+    return Response({'status': 'unfollowed'})
+>>>>>>> 500da4a7324bad97e7257c5c3840a2c1c9973be7
