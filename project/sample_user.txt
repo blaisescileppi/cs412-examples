@@ -1,0 +1,7 @@
+Doctor login:
+username: admin
+password: 12345Qwertyuiop.
+
+Patient login:
+username: melodyartemis
+password: 12345Qwertyuiop.

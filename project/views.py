@@ -1083,22 +1083,27 @@ class PatientBookingView(PatientRequiredMixin, TemplateView):
             .distinct()
         )
 
+        # Only show slots with no existing appointment OR this patient's own request.
+        # Slots pending for another patient are excluded so two patients can't
+        # race to book the same slot.
+        open_or_own = Q(appointment__isnull=True) | Q(appointment__patient=patient)
+
         if doctor_ids:
             slots = DoctorAvailabilitySlot.objects.filter(
                 doctor_id__in=doctor_ids, is_booked=False, date__gte=today
-            )
+            ).filter(open_or_own)
         else:
             # Patient has no linked cases yet — show everyone
             slots = DoctorAvailabilitySlot.objects.filter(
                 is_booked=False, date__gte=today
-            )
+            ).filter(open_or_own)
 
         # Group slots by doctor for the template
         slots = slots.select_related("doctor").order_by(
             "doctor__last_name", "date", "start_time"
         )
 
-        # Check which slots this patient has already requested
+        # Track which slots this patient has already requested (shown as disabled)
         requested_slot_ids = set(
             Appointment.objects.filter(patient=patient)
             .values_list("slot_id", flat=True)
@@ -1125,8 +1130,8 @@ def request_appointment(request, slot_pk):
 
     slot = get_object_or_404(DoctorAvailabilitySlot, pk=slot_pk, is_booked=False)
 
-    # Guard: patient shouldn't be able to request the same slot twice
-    if Appointment.objects.filter(patient=patient, slot=slot).exists():
+    # Guard: redirect if any appointment already exists for this slot (OneToOneField)
+    if Appointment.objects.filter(slot=slot).exists():
         return redirect("patient_booking")
 
     if request.method == "POST":
