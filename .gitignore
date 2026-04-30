@@ -56,3 +56,4 @@ htmlcov/
 .coverage
 .coverage.*
 
+db.sqlite3
