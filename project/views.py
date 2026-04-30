@@ -1114,6 +1114,7 @@ class PatientBookingView(PatientRequiredMixin, TemplateView):
         context["requested_slot_ids"] = requested_slot_ids
         return context
 
+from django.db import IntegrityError
 
 def request_appointment(request, slot_pk):
     """
@@ -1124,14 +1125,16 @@ def request_appointment(request, slot_pk):
     """
     if not request.user.is_authenticated:
         return redirect(reverse("login_patient") + f"?next={request.path}")
+
     patient = PatientProfile.objects.filter(user=request.user).first()
     if not patient:
         return redirect("login_patient")
 
-    slot = get_object_or_404(DoctorAvailabilitySlot, pk=slot_pk, is_booked=False)
+    slot = get_object_or_404(DoctorAvailabilitySlot, pk=slot_pk)
 
-    # Guard: redirect if any appointment already exists for this slot (OneToOneField)
-    if Appointment.objects.filter(slot=slot).exists():
+    if slot.is_booked or Appointment.objects.filter(slot=slot).exists():
+        slot.is_booked = True
+        slot.save()
         return redirect("patient_booking")
 
     if request.method == "POST":
@@ -1140,10 +1143,18 @@ def request_appointment(request, slot_pk):
             appt = form.save(commit=False)
             appt.patient = patient
             appt.slot = slot
-            appt.save()
-        slot.is_booked = True
-        slot.save()
-        return redirect("patient_appointments")
+
+            try:
+                appt.save()
+            except IntegrityError:
+                slot.is_booked = True
+                slot.save()
+                return redirect("patient_booking")
+
+            slot.is_booked = True
+            slot.save()
+
+            return redirect("patient_appointments")
     else:
         form = AppointmentRequestForm()
 
@@ -1152,6 +1163,45 @@ def request_appointment(request, slot_pk):
         "slot": slot,
         "patient": patient,
     })
+
+
+# def request_appointment(request, slot_pk):
+#     """
+#     Patient requests a specific availability slot. After submitting the reason
+#     form, creates an Appointment with status=Requested. Function-based because
+#     we need to pre-validate the slot (must be open, must not already be
+#     requested by this patient) before showing the form.
+#     """
+#     if not request.user.is_authenticated:
+#         return redirect(reverse("login_patient") + f"?next={request.path}")
+#     patient = PatientProfile.objects.filter(user=request.user).first()
+#     if not patient:
+#         return redirect("login_patient")
+
+#     slot = get_object_or_404(DoctorAvailabilitySlot, pk=slot_pk, is_booked=False)
+
+#     # Guard: redirect if any appointment already exists for this slot (OneToOneField)
+#     if Appointment.objects.filter(slot=slot).exists():
+#         return redirect("patient_booking")
+
+#     if request.method == "POST":
+#         form = AppointmentRequestForm(request.POST)
+#         if form.is_valid():
+#             appt = form.save(commit=False)
+#             appt.patient = patient
+#             appt.slot = slot
+#             appt.save()
+#         slot.is_booked = True
+#         slot.save()
+#         return redirect("patient_appointments")
+#     else:
+#         form = AppointmentRequestForm()
+
+#     return render(request, "project/appointment_request_form.html", {
+#         "form": form,
+#         "slot": slot,
+#         "patient": patient,
+#     })
 
 
 class PatientAppointmentListView(PatientRequiredMixin, ListView):
