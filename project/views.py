@@ -1141,7 +1141,9 @@ def request_appointment(request, slot_pk):
             appt.patient = patient
             appt.slot = slot
             appt.save()
-            return redirect("patient_appointments")
+        slot.is_booked = True
+        slot.save()
+        return redirect("patient_appointments")
     else:
         form = AppointmentRequestForm()
 
