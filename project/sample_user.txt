@@ -2,6 +2,7 @@ Doctor login:
 username: admin
 password: 12345Qwertyuiop.
 
-Patient login:
-username: melodyartemis
+Patient logins:
+username1: melodyartemis
+username2: blaises
 password: 12345Qwertyuiop.
