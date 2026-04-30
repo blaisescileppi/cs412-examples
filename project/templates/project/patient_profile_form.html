@@ -1,0 +1,25 @@
+<!-- project/templates/project/patient_profile_form.html
+     Form for a patient to update their own profile. -->
+
+{% extends 'project/base.html' %}
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1>Edit Profile</h1>
+        <p>Update your patient information.</p>
+    </div>
+
+    <div class="card form-wrap">
+        <form method="post" class="django-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="btn-row">
+                <button type="submit" class="btn btn-success">Save changes</button>
+                <a href="{% url 'patient_profile' %}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

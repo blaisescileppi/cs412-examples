@@ -1,2 +1,86 @@
-<!--project/templates/project/base.html-->
+<!-- project/templates/project/base.html
+     Base template. Builds a context-aware nav bar for doctors vs patients.
+     doctor_profile and patient_profile are injected by the user_profiles
+     context processor so every template has safe access to them. -->
+
+{% load static %}
 <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Medical Mystery Solver{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'project.css' %}">
+</head>
+<body>
+
+<nav class="topnav">
+    <a href="{% url 'home' %}" class="brand">&#9877; Medical Mystery Solver</a>
+
+    {% if request.user.is_authenticated %}
+        {% if doctor_profile %}
+            <!-- Doctor navigation -->
+            <a href="{% url 'doctor_dashboard' %}">Dashboard</a>
+            <a href="{% url 'doctor_case_list' %}">My Cases</a>
+            <a href="{% url 'create_case' %}">+ New Case</a>
+            <a href="{% url 'search_cases' %}">Search</a>
+
+            <!-- Patient Notes with unread badge -->
+            <a href="{% url 'doctor_patient_notes' %}" style="position:relative;">
+                Patient Notes
+                {% with n=doctor_profile.get_unread_note_count %}
+                    {% if n %}<span class="notif-badge">{{ n }}</span>{% endif %}
+                {% endwith %}
+            </a>
+
+            <!-- Availability / Appointments with pending badge -->
+            <a href="{% url 'doctor_availability' %}" style="position:relative;">
+                Availability
+                {% with p=doctor_profile.get_pending_appointment_count %}
+                    {% if p %}<span class="notif-badge notif-orange">{{ p }}</span>{% endif %}
+                {% endwith %}
+            </a>
+
+            <a href="{% url 'condition_list' %}">Conditions</a>
+            <a href="{% url 'symptom_list' %}">Symptoms</a>
+
+        {% elif patient_profile %}
+            <!-- Patient navigation -->
+            <a href="{% url 'patient_dashboard' %}">Dashboard</a>
+            <a href="{% url 'patient_case_list' %}">My Cases</a>
+            <a href="{% url 'patient_symptom_check' %}">How I Feel</a>
+            <a href="{% url 'patient_notes_list' %}">My Notes</a>
+            <a href="{% url 'patient_booking' %}">Book Appointment</a>
+            <a href="{% url 'patient_appointments' %}">Appointments</a>
+        {% endif %}
+
+        <span class="spacer"></span>
+
+        {% if doctor_profile %}
+            <a href="{% url 'doctor_profile' %}">Dr. {{ doctor_profile.last_name }}</a>
+        {% elif patient_profile %}
+            <a href="{% url 'patient_profile' %}">{{ patient_profile.first_name }}</a>
+        {% endif %}
+
+        <span class="user-info">{{ request.user.username }}</span>
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit">Log out</button>
+        </form>
+    {% else %}
+        <span class="spacer"></span>
+        <a href="{% url 'login_doctor' %}">Doctor login</a>
+        <a href="{% url 'login_patient' %}">Patient login</a>
+    {% endif %}
+</nav>
+
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+    Medical Mystery Solver &mdash; CS 412 Final Project &mdash; Blaise Scileppi
+</footer>
+
+</body>
+</html>

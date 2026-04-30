@@ -1,0 +1,35 @@
+<!-- project/templates/project/register_patient.html
+     Registration form for new patient accounts. Same dual-form pattern
+     as the doctor registration page. -->
+
+{% extends 'project/base.html' %}
+{% block title %}Register — Patient{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-box" style="max-width:520px;">
+        <h1>Create Patient Account</h1>
+        <p class="subtitle">Set up your account to view your medical cases.</p>
+
+        <form method="post" class="django-form">
+            {% csrf_token %}
+
+            <h3 style="margin:12px 0 8px;color:#1b2f4b;font-size:0.95rem;">Account credentials</h3>
+            {{ user_form.as_p }}
+
+            <hr class="divider">
+
+            <h3 style="margin:0 0 8px;color:#1b2f4b;font-size:0.95rem;">Patient information</h3>
+            {{ form.as_p }}
+
+            <button type="submit" class="btn btn-blue" style="width:100%;margin-top:12px;">
+                Create account
+            </button>
+        </form>
+
+        <p class="text-muted text-small" style="text-align:center;margin-top:14px;">
+            Already have an account? <a href="{% url 'login_patient' %}">Log in</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

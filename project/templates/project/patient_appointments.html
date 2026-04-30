@@ -1,0 +1,64 @@
+<!-- project/templates/project/patient_appointments.html
+     Patient views all their appointment requests, grouped by status. -->
+
+{% extends 'project/base.html' %}
+{% block title %}My Appointments{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1>My Appointments</h1>
+        <p>All appointment requests you have submitted.</p>
+    </div>
+
+    {% if not appointments %}
+        <div class="card">
+            <p class="text-muted">You haven't requested any appointments yet.</p>
+            <a href="{% url 'patient_booking' %}" class="btn btn-success" style="margin-top:10px;">Book an appointment</a>
+        </div>
+    {% else %}
+        <div class="card">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Doctor</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                        <th>Requested</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for appt in appointments %}
+                    <tr>
+                        <td>
+                            <strong>Dr. {{ appt.slot.doctor.first_name }} {{ appt.slot.doctor.last_name }}</strong>
+                            <br><span class="text-muted text-small">{{ appt.slot.doctor.specialization }}</span>
+                        </td>
+                        <td class="nowrap">{{ appt.slot.date|date:"M d, Y" }}</td>
+                        <td class="nowrap">{{ appt.slot.start_time|time:"g:i a" }} &ndash; {{ appt.slot.end_time|time:"g:i a" }}</td>
+                        <td class="text-small">{{ appt.reason|default:"—"|truncatechars:60 }}</td>
+                        <td>
+                            {% if appt.status == "Confirmed" %}
+                                <span class="badge badge-normal">Confirmed</span>
+                            {% elif appt.status == "Cancelled" %}
+                                <span class="badge badge-ruledout">Cancelled</span>
+                            {% else %}
+                                <span class="badge badge-suspected">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted text-small nowrap">{{ appt.created_at|date:"M d" }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+    <div class="btn-row">
+        <a href="{% url 'patient_booking' %}" class="btn btn-success">+ Book another</a>
+        <a href="{% url 'patient_dashboard' %}" class="btn btn-outline">&larr; Dashboard</a>
+    </div>
+</div>
+{% endblock %}

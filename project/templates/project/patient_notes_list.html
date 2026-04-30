@@ -1,0 +1,43 @@
+<!-- project/templates/project/patient_notes_list.html
+     Patient views all their sent notes, with a button to add a new one.
+     Notes are shown newest first, styled as cards. -->
+
+{% extends 'project/base.html' %}
+{% block title %}My Notes{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header flex-between">
+        <div>
+            <h1>My Notes</h1>
+            <p>Messages you've sent to your doctors.</p>
+        </div>
+        <a href="{% url 'add_patient_note' %}" class="btn btn-primary">+ New note</a>
+    </div>
+
+    {% if notes %}
+        {% for note in notes %}
+        <div class="note-card">
+            <div class="note-meta">
+                <span>To: <strong>Dr. {{ note.doctor.first_name }} {{ note.doctor.last_name }}</strong></span>
+                {% if note.case %}<span>Case: {{ note.case.title }}</span>{% endif %}
+                <span>{{ note.created_at|date:"M d, Y g:i a" }}</span>
+                {% if note.is_read %}
+                    <span class="badge badge-resolved">Read</span>
+                {% else %}
+                    <span class="badge badge-open">Unread</span>
+                {% endif %}
+            </div>
+            <div class="note-body">{{ note.body }}</div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="card">
+            <p class="text-muted">
+                You haven't sent any notes yet.
+                <a href="{% url 'add_patient_note' %}">Write your first note.</a>
+            </p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

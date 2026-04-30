@@ -1,0 +1,115 @@
+<!-- project/templates/project/doctor_dashboard.html
+     Main landing page after a doctor logs in. Shows case counts by status
+     and a quick list of the five most recently opened cases. -->
+
+{% extends 'project/base.html' %}
+{% block title %}Dashboard — Dr. {{ doctor.last_name }}{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header flex-between">
+        <div>
+            <h1>Welcome back, Dr. {{ doctor.last_name }}</h1>
+            <p>{{ doctor.specialization }}</p>
+        </div>
+        <a href="{% url 'create_case' %}" class="btn btn-success">+ Open new case</a>
+    </div>
+
+    <!-- stat boxes -->
+    <div class="stat-row">
+        <div class="stat-box">
+            <div class="stat-number">{{ total_cases }}</div>
+            <div class="stat-label">Total cases</div>
+        </div>
+        <div class="stat-box open">
+            <div class="stat-number">{{ open_cases }}</div>
+            <div class="stat-label">Open</div>
+        </div>
+        <div class="stat-box invest">
+            <div class="stat-number">{{ investigating_cases }}</div>
+            <div class="stat-label">Investigating</div>
+        </div>
+        <div class="stat-box resolved">
+            <div class="stat-number">{{ resolved_cases }}</div>
+            <div class="stat-label">Resolved</div>
+        </div>
+        {% with unread=doctor_profile.get_unread_note_count %}
+        {% if unread %}
+        <div class="stat-box" style="border-top:4px solid #c0392b;">
+            <div class="stat-number" style="color:#c0392b;">{{ unread }}</div>
+            <div class="stat-label">Unread notes</div>
+        </div>
+        {% endif %}
+        {% endwith %}
+        {% with pending=doctor_profile.get_pending_appointment_count %}
+        {% if pending %}
+        <div class="stat-box" style="border-top:4px solid #e67e22;">
+            <div class="stat-number" style="color:#e67e22;">{{ pending }}</div>
+            <div class="stat-label">Pending requests</div>
+        </div>
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- recent cases -->
+    <div class="card">
+        <h2>Recent cases</h2>
+        {% if recent_cases %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Alias</th>
+                        <th>Chief complaint</th>
+                        <th>Status</th>
+                        <th>Opened</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for case in recent_cases %}
+                    <tr>
+                        <td><a href="{% url 'case_detail' case.pk %}">{{ case.title }}</a></td>
+                        <td class="text-muted">{{ case.patient_alias }}</td>
+                        <td>{{ case.chief_complaint }}</td>
+                        <td>
+                            {% if case.case_status == 'Open' %}
+                                <span class="badge badge-open">Open</span>
+                            {% elif case.case_status == 'Investigating' %}
+                                <span class="badge badge-invest">Investigating</span>
+                            {% else %}
+                                <span class="badge badge-resolved">Resolved</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted nowrap">{{ case.date_started }}</td>
+                        <td><a href="{% url 'case_detail' case.pk %}" class="btn btn-outline btn-sm">View</a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="text-muted">No cases yet. <a href="{% url 'create_case' %}">Open your first case.</a></p>
+        {% endif %}
+
+        {% if total_cases > 5 %}
+            <div class="mt-16">
+                <a href="{% url 'doctor_case_list' %}" class="btn btn-outline btn-sm">View all {{ total_cases }} cases &rarr;</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- quick links -->
+    <div class="card">
+        <h2>Quick links</h2>
+        <div class="btn-row">
+            <a href="{% url 'doctor_case_list' %}" class="btn btn-outline">All cases</a>
+            <a href="{% url 'search_cases' %}" class="btn btn-outline">Search cases</a>
+            <a href="{% url 'doctor_patient_notes' %}" class="btn btn-outline">Patient notes</a>
+            <a href="{% url 'doctor_availability' %}" class="btn btn-outline">Availability</a>
+            <a href="{% url 'condition_list' %}" class="btn btn-outline">Conditions reference</a>
+            <a href="{% url 'symptom_list' %}" class="btn btn-outline">Symptoms reference</a>
+            <a href="{% url 'doctor_profile' %}" class="btn btn-outline">My profile</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

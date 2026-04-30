@@ -1,0 +1,90 @@
+<!-- project/templates/project/search_results.html
+     Advanced search form and results. All filter fields are optional and
+     can be combined. Shows the result count and a table of matched cases. -->
+
+{% extends 'project/base.html' %}
+{% block title %}Search Cases{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1>Search Cases</h1>
+        <p>Filter across all your cases using any combination of the fields below.</p>
+    </div>
+
+    <!-- search form -->
+    <div class="card">
+        <form method="get" class="django-form">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;">
+                {% for field in form %}
+                    <p>
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.help_text %}
+                            <span class="helptext">{{ field.help_text }}</span>
+                        {% endif %}
+                        {{ field.errors }}
+                    </p>
+                {% endfor %}
+            </div>
+            <div class="btn-row">
+                <button type="submit" class="btn btn-primary">Search</button>
+                <a href="{% url 'search_cases' %}" class="btn btn-outline">Clear</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- results -->
+    {% if request.GET %}
+        <div class="card" style="padding:0 0 0 0;">
+            <div style="padding:16px 20px 12px;border-bottom:1px solid #e8edf3;">
+                <strong>{{ result_count }}</strong> case{{ result_count|pluralize }} found
+                {% if query %} for &ldquo;{{ query }}&rdquo;{% endif %}
+            </div>
+
+            {% if cases %}
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Alias</th>
+                            <th>Chief complaint</th>
+                            <th>Status</th>
+                            <th>Top condition</th>
+                            <th>Opened</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for case in cases %}
+                        <tr>
+                            <td><a href="{% url 'case_detail' case.pk %}"><strong>{{ case.title }}</strong></a></td>
+                            <td class="text-muted">{{ case.patient_alias }}</td>
+                            <td>{{ case.chief_complaint }}</td>
+                            <td>
+                                {% if case.case_status == 'Open' %}
+                                    <span class="badge badge-open">Open</span>
+                                {% elif case.case_status == 'Investigating' %}
+                                    <span class="badge badge-invest">Investigating</span>
+                                {% else %}
+                                    <span class="badge badge-resolved">Resolved</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% with top=case.get_top_condition %}
+                                    {% if top %}{{ top.condition.name }} ({{ top.confidence_score }}%){% else %}<span class="text-muted">—</span>{% endif %}
+                                {% endwith %}
+                            </td>
+                            <td class="text-muted nowrap">{{ case.date_started }}</td>
+                            <td><a href="{% url 'case_detail' case.pk %}" class="btn btn-outline btn-sm">View</a></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-muted" style="padding:20px;">No cases match your filters.</p>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

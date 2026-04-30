@@ -1,0 +1,63 @@
+<!-- project/templates/project/patient_booking.html
+     Patient sees available slots from their doctors (or all doctors if they
+     have no linked cases). Slots are grouped by doctor then by date.
+     Already-requested slots are shown as disabled. -->
+
+{% extends 'project/base.html' %}
+{% block title %}Book an Appointment{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1>Book an Appointment</h1>
+        <p>Select an available 30-minute slot to send a request to your doctor.</p>
+    </div>
+
+    {% if not slots %}
+        <div class="card">
+            <p class="text-muted">
+                No open slots available right now. Check back later or ask your doctor
+                to add some availability.
+            </p>
+        </div>
+    {% else %}
+        {% regroup slots by doctor as slots_by_doctor %}
+        {% for doctor_group in slots_by_doctor %}
+        <div class="card">
+            <h2>Dr. {{ doctor_group.grouper.first_name }} {{ doctor_group.grouper.last_name }}
+                <span class="text-muted text-small" style="font-weight:normal;">
+                    — {{ doctor_group.grouper.specialization }}
+                </span>
+            </h2>
+
+            {% regroup doctor_group.list by date as slots_by_date %}
+            {% for date_group in slots_by_date %}
+                <div class="slot-group">
+                    <h3>{{ date_group.grouper|date:"l, F j, Y" }}</h3>
+                    <div class="slot-list">
+                        {% for slot in date_group.list %}
+                            {% if slot.pk in requested_slot_ids %}
+                                <span class="slot-chip requested">
+                                    {{ slot.start_time|time:"g:i a" }} – {{ slot.end_time|time:"g:i a" }}
+                                    &nbsp;(requested)
+                                </span>
+                            {% else %}
+                                <a href="{% url 'request_appointment' slot.pk %}" class="slot-chip open"
+                                   style="text-decoration:none;">
+                                    {{ slot.start_time|time:"g:i a" }} – {{ slot.end_time|time:"g:i a" }}
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="btn-row">
+        <a href="{% url 'patient_appointments' %}" class="btn btn-outline">View my appointments</a>
+        <a href="{% url 'patient_dashboard' %}" class="btn btn-outline">&larr; Dashboard</a>
+    </div>
+</div>
+{% endblock %}

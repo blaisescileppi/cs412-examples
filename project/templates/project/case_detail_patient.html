@@ -1,0 +1,130 @@
+<!-- project/templates/project/case_detail_patient.html
+     Read-only view of a case for the patient. Shows active symptoms and
+     non-ruled-out conditions. Doesn't expose clinical notes or full evidence. -->
+
+{% extends 'project/base.html' %}
+{% block title %}{{ case.title }}{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+
+    <div class="page-header">
+        <h1>{{ case.title }}</h1>
+        <p>
+            Doctor: Dr. {{ case.doctor.first_name }} {{ case.doctor.last_name }}
+            ({{ case.doctor.specialization }}) &mdash; opened {{ case.date_started }}
+        </p>
+    </div>
+
+    <!-- case overview -->
+    <div class="card">
+        <h2>Overview</h2>
+        <div class="detail-grid">
+            <span class="field-label">Status</span>
+            <span class="field-value">
+                {% if case.case_status == 'Open' %}
+                    <span class="badge badge-open">Open</span>
+                {% elif case.case_status == 'Investigating' %}
+                    <span class="badge badge-invest">Investigating</span>
+                {% else %}
+                    <span class="badge badge-resolved">Resolved</span>
+                {% endif %}
+            </span>
+
+            <span class="field-label">Chief complaint</span>
+            <span class="field-value">{{ case.chief_complaint }}</span>
+        </div>
+    </div>
+
+    <!-- active symptoms -->
+    <div class="card">
+        <h2>Active symptoms ({{ symptoms|length }})</h2>
+        {% if symptoms %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Symptom</th>
+                        <th>Body system</th>
+                        <th>Severity</th>
+                        <th>Frequency</th>
+                        <th>First noticed</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for cs in symptoms %}
+                    <tr>
+                        <td>{{ cs.symptom.name }}</td>
+                        <td class="text-muted">{{ cs.symptom.body_system }}</td>
+                        <td>
+                            {% if cs.severity <= 3 %}
+                                <span class="severity-dot sev-low"></span>
+                            {% elif cs.severity <= 6 %}
+                                <span class="severity-dot sev-mid"></span>
+                            {% else %}
+                                <span class="severity-dot sev-high"></span>
+                            {% endif %}
+                            {{ cs.severity }}/10
+                        </td>
+                        <td>{{ cs.frequency }}</td>
+                        <td class="text-muted">{{ cs.date_noticed }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="text-muted">No active symptoms on record.</p>
+        {% endif %}
+    </div>
+
+    <!-- conditions being considered -->
+    <div class="card">
+        <h2>Conditions being considered ({{ conditions|length }})</h2>
+        {% if conditions %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Condition</th>
+                        <th>Category</th>
+                        <th>Likelihood</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for cc in conditions %}
+                    <tr>
+                        <td><a href="{% url 'condition_detail' cc.condition.pk %}">{{ cc.condition.name }}</a></td>
+                        <td class="text-muted">{{ cc.condition.category }}</td>
+                        <td>
+                            <div class="confidence-wrap">
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill"
+                                         style="width:{{ cc.confidence_score }}%;background:{% if cc.confidence_score >= 70 %}#27ae60{% elif cc.confidence_score >= 40 %}#f39c12{% else %}#e74c3c{% endif %};">
+                                    </div>
+                                </div>
+                                <span class="confidence-pct">{{ cc.confidence_score }}%</span>
+                            </div>
+                        </td>
+                        <td>
+                            {% if cc.status == 'Possible' %}
+                                <span class="badge badge-possible">Possible</span>
+                            {% elif cc.status == 'Likely' %}
+                                <span class="badge badge-likely">Likely</span>
+                            {% else %}
+                                <span class="badge badge-confirmed">Confirmed</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="text-muted">Your doctor hasn't added any conditions to this case yet.</p>
+        {% endif %}
+    </div>
+
+    <div class="btn-row">
+        <a href="{% url 'patient_case_list' %}" class="btn btn-outline">&larr; All appointments</a>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,46 @@
+<!-- project/templates/project/condition_detail.html
+     Detail page for a single condition. Shows all fields plus how many
+     active cases are currently considering it. -->
+
+{% extends 'project/base.html' %}
+{% block title %}{{ condition.name }}{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header flex-between">
+        <div>
+            <h1>{{ condition.name }}</h1>
+            <p>{{ condition.category }}</p>
+        </div>
+        <span class="badge {% if condition.red_flag_level == 'High' %}badge-high{% elif condition.red_flag_level == 'Medium' %}badge-medium{% else %}badge-low{% endif %}" style="font-size:0.9rem;padding:6px 14px;">
+            Red flag: {{ condition.red_flag_level }}
+        </span>
+    </div>
+
+    <div class="card">
+        <h2>Overview</h2>
+        <div class="detail-grid">
+            <span class="field-label">Category</span>
+            <span class="field-value">{{ condition.category }}</span>
+
+            <span class="field-label">Common age group</span>
+            <span class="field-value">{{ condition.common_age_group|default:"Not specified" }}</span>
+
+            <span class="field-label">Typical duration</span>
+            <span class="field-value">{{ condition.typical_duration|default:"Not specified" }}</span>
+
+            <span class="field-label">Active cases</span>
+            <span class="field-value">{{ active_case_count }}</span>
+        </div>
+
+        <hr class="divider">
+
+        <h3 style="margin-bottom:8px;">Description</h3>
+        <p style="line-height:1.7;color:#374151;">{{ condition.description }}</p>
+    </div>
+
+    <div class="btn-row">
+        <a href="{% url 'condition_list' %}" class="btn btn-outline">&larr; All conditions</a>
+    </div>
+</div>
+{% endblock %}

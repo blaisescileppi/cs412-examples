@@ -1,0 +1,22 @@
+<!-- project/templates/project/casesymptom_confirm_delete.html -->
+
+{% extends 'project/base.html' %}
+{% block title %}Remove Symptom{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1>Remove Symptom</h1>
+    </div>
+    <div class="card form-wrap">
+        <p>Remove <strong>{{ object.symptom.name }}</strong> from <strong>{{ object.case.title }}</strong>?</p>
+        <form method="post">
+            {% csrf_token %}
+            <div class="btn-row">
+                <button type="submit" class="btn btn-danger">Yes, remove</button>
+                <a href="{% url 'case_detail' object.case.pk %}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

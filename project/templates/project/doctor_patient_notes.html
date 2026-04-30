@@ -1,0 +1,83 @@
+<!-- project/templates/project/doctor_patient_notes.html
+     Doctor sees all patient notes addressed to them, split into unread
+     (shown first with a red left border) and read. Below the notes section
+     there's a table of recent patient-reported symptom check-offs. -->
+
+{% extends 'project/base.html' %}
+{% block title %}Patient Notes{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1>Patient Notes</h1>
+        <p>
+            Dr. {{ doctor.last_name }} &mdash;
+            {% if unread_count %}
+                <span style="color:#c0392b;font-weight:700;">{{ unread_count }} unread</span>
+            {% else %}
+                all caught up
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- notes -->
+    {% if notes %}
+        {% for note in notes %}
+        <div class="note-card {% if not note.is_read %}unread{% endif %}">
+            <div class="note-meta">
+                {% if not note.is_read %}
+                    <span class="badge badge-ruledout">NEW</span>
+                {% endif %}
+                <span><strong>{{ note.patient.first_name }} {{ note.patient.last_name }}</strong></span>
+                {% if note.case %}<span>Re: {{ note.case.title }}</span>{% endif %}
+                <span>{{ note.created_at|date:"M d, Y g:i a" }}</span>
+
+                {% if not note.is_read %}
+                    <form method="post" action="{% url 'mark_note_read' note.pk %}" style="margin-left:auto;">
+                        {% csrf_token %}
+                        <button class="btn btn-outline btn-sm" type="submit">Mark as read</button>
+                    </form>
+                {% endif %}
+            </div>
+            <div class="note-body">{{ note.body }}</div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="card">
+            <p class="text-muted">No patient notes yet.</p>
+        </div>
+    {% endif %}
+
+    <!-- symptom check-offs -->
+    <div class="card" style="margin-top:28px;">
+        <h2>Patient-reported symptoms (recent)</h2>
+        {% if symptom_checks %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Patient</th>
+                        <th>Symptom</th>
+                        <th>Date</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for check in symptom_checks %}
+                    <tr>
+                        <td>{{ check.patient.first_name }} {{ check.patient.last_name }}</td>
+                        <td>
+                            <a href="{% url 'symptom_detail' check.symptom.pk %}">{{ check.symptom.name }}</a>
+                            <span class="text-muted text-small">({{ check.symptom.body_system }})</span>
+                        </td>
+                        <td class="text-muted nowrap">{{ check.date_reported }}</td>
+                        <td class="text-small">{{ check.notes|default:"—"|truncatechars:60 }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="text-muted">No symptom self-reports from your patients yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

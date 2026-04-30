@@ -1,0 +1,60 @@
+<!-- project/templates/project/case_list_patient.html
+     Shows all cases linked to the logged-in patient, ordered by date.
+     Patients only see cases that a doctor explicitly linked to their account. -->
+
+{% extends 'project/base.html' %}
+{% block title %}My Appointments{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1>My Appointments</h1>
+        <p>
+            {{ patient.first_name }} {{ patient.last_name }} &mdash;
+            {{ total_appointments }} appointment{{ total_appointments|pluralize }} total
+        </p>
+    </div>
+
+    <div class="card" style="padding:0;">
+        {% if cases %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Case</th>
+                        <th>Doctor</th>
+                        <th>Chief complaint</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for case in cases %}
+                    <tr>
+                        <td><a href="{% url 'case_detail_patient' case.pk %}"><strong>{{ case.title }}</strong></a></td>
+                        <td>Dr. {{ case.doctor.last_name }}</td>
+                        <td>{{ case.chief_complaint }}</td>
+                        <td>
+                            {% if case.case_status == 'Open' %}
+                                <span class="badge badge-open">Open</span>
+                            {% elif case.case_status == 'Investigating' %}
+                                <span class="badge badge-invest">Investigating</span>
+                            {% else %}
+                                <span class="badge badge-resolved">Resolved</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted nowrap">{{ case.date_started }}</td>
+                        <td><a href="{% url 'case_detail_patient' case.pk %}" class="btn btn-outline btn-sm">View</a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="text-muted" style="padding:20px;">
+                No appointments linked to your account yet. If you've seen a doctor using this system,
+                ask them to link your account to your case.
+            </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

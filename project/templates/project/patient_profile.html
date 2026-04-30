@@ -1,0 +1,45 @@
+<!-- project/templates/project/patient_profile.html
+     Shows the logged-in patient's profile and appointment count. -->
+
+{% extends 'project/base.html' %}
+{% block title %}My Profile — {{ patient }}{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header flex-between">
+        <div>
+            <h1>{{ patient.first_name }} {{ patient.last_name }}</h1>
+            <p>Patient profile</p>
+        </div>
+        <a href="{% url 'update_patient_profile' %}" class="btn btn-warning btn-sm">Edit profile</a>
+    </div>
+
+    <div class="card">
+        <h2>Profile information</h2>
+        <div class="detail-grid">
+            <span class="field-label">Name</span>
+            <span class="field-value">{{ patient.first_name }} {{ patient.last_name }}</span>
+
+            <span class="field-label">Date of birth</span>
+            <span class="field-value">{{ patient.date_of_birth|default:"Not provided" }}</span>
+
+            <span class="field-label">Sex</span>
+            <span class="field-value">{{ patient.sex }}</span>
+
+            <span class="field-label">Contact email</span>
+            <span class="field-value">{{ patient.contact_email|default:"Not provided" }}</span>
+
+            <span class="field-label">Username</span>
+            <span class="field-value">{{ request.user.username }}</span>
+
+            <span class="field-label">Total appointments</span>
+            <span class="field-value">{{ patient.get_appointment_count }}</span>
+        </div>
+    </div>
+
+    <div class="btn-row">
+        <a href="{% url 'patient_dashboard' %}" class="btn btn-outline">&larr; Dashboard</a>
+        <a href="{% url 'update_patient_profile' %}" class="btn btn-warning">Edit profile</a>
+    </div>
+</div>
+{% endblock %}

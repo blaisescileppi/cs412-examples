@@ -1,0 +1,23 @@
+<!-- project/templates/project/evidence_confirm_delete.html -->
+
+{% extends 'project/base.html' %}
+{% block title %}Delete Evidence{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1>Delete Evidence</h1>
+    </div>
+    <div class="card form-wrap">
+        <div class="alert alert-error">This cannot be undone.</div>
+        <p>Delete <strong>{{ object.evidence_type }}</strong> recorded on {{ object.date_recorded }}?</p>
+        <form method="post">
+            {% csrf_token %}
+            <div class="btn-row">
+                <button type="submit" class="btn btn-danger">Yes, delete</button>
+                <a href="{% url 'case_detail' object.case.pk %}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+<!-- project/templates/project/symptom_detail.html
+     Detail page for a single symptom. Shows body system, description,
+     and how many cases in the system have this symptom logged. -->
+
+{% extends 'project/base.html' %}
+{% block title %}{{ symptom.name }}{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header flex-between">
+        <div>
+            <h1>{{ symptom.name }}</h1>
+            <p>{{ symptom.body_system }}</p>
+        </div>
+        {% if symptom.is_common %}
+            <span class="badge badge-low" style="font-size:0.9rem;padding:6px 14px;">Common symptom</span>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <h2>Details</h2>
+        <div class="detail-grid">
+            <span class="field-label">Body system</span>
+            <span class="field-value">{{ symptom.body_system }}</span>
+
+            <span class="field-label">Is common</span>
+            <span class="field-value">{{ symptom.is_common|yesno:"Yes,No" }}</span>
+
+            <span class="field-label">Cases logged</span>
+            <span class="field-value">{{ case_count }}</span>
+        </div>
+
+        <hr class="divider">
+
+        <h3 style="margin-bottom:8px;">Description</h3>
+        <p style="line-height:1.7;color:#374151;">{{ symptom.description }}</p>
+    </div>
+
+    <div class="btn-row">
+        <a href="{% url 'symptom_list' %}" class="btn btn-outline">&larr; All symptoms</a>
+    </div>
+</div>
+{% endblock %}

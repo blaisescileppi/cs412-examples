@@ -1,0 +1,48 @@
+<!-- project/templates/project/doctor_profile.html
+     Shows the logged-in doctor's profile information and stats. -->
+
+{% extends 'project/base.html' %}
+{% block title %}My Profile — Dr. {{ doctor.last_name }}{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header flex-between">
+        <div>
+            <h1>Dr. {{ doctor.first_name }} {{ doctor.last_name }}</h1>
+            <p>{{ doctor.specialization }}</p>
+        </div>
+        <a href="{% url 'update_doctor_profile' %}" class="btn btn-warning btn-sm">Edit profile</a>
+    </div>
+
+    <div class="card">
+        <h2>Profile information</h2>
+        <div class="detail-grid">
+            <span class="field-label">Name</span>
+            <span class="field-value">Dr. {{ doctor.first_name }} {{ doctor.last_name }}</span>
+
+            <span class="field-label">Specialization</span>
+            <span class="field-value">{{ doctor.specialization }}</span>
+
+            <span class="field-label">License number</span>
+            <span class="field-value">{{ doctor.license_number|default:"Not provided" }}</span>
+
+            <span class="field-label">Username</span>
+            <span class="field-value">{{ request.user.username }}</span>
+
+            <span class="field-label">Total cases</span>
+            <span class="field-value">{{ doctor.get_case_count }}</span>
+        </div>
+
+        {% if doctor.bio %}
+            <hr class="divider">
+            <h3 style="margin-bottom:8px;">Bio</h3>
+            <p style="line-height:1.7;color:#374151;">{{ doctor.bio }}</p>
+        {% endif %}
+    </div>
+
+    <div class="btn-row">
+        <a href="{% url 'doctor_dashboard' %}" class="btn btn-outline">&larr; Dashboard</a>
+        <a href="{% url 'update_doctor_profile' %}" class="btn btn-warning">Edit profile</a>
+    </div>
+</div>
+{% endblock %}

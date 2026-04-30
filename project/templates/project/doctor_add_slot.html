@@ -1,0 +1,26 @@
+<!-- project/templates/project/doctor_add_slot.html
+     Doctor adds a new 30-minute availability slot. Shows the form with
+     a note that each slot is exactly 30 minutes. -->
+
+{% extends 'project/base.html' %}
+{% block title %}Add Availability Slot{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1>Add Availability Slot</h1>
+        <p>Each slot is 30 minutes. Patients will be able to request it from the booking page.</p>
+    </div>
+
+    <div class="card form-wrap">
+        <form method="post" class="django-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="btn-row">
+                <button type="submit" class="btn btn-success">Add slot</button>
+                <a href="{% url 'doctor_availability' %}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

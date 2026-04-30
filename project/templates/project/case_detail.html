@@ -1,28 +1,224 @@
-<!--project/templates/project/case_detail.html-->
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ case.title }}</title>
-</head>
-<body>
-    <h1>{{ case.title }}</h1>
+<!-- project/templates/project/case_detail.html
+     Full detail view of a case for the doctor. Shows core case info,
+     the symptom log, evidence entries, and the differential diagnosis
+     table with confidence bars. Each section has action buttons. -->
 
-    <nav>
-        <a href="{% url 'case_list' %}">Cases</a> |
-        <a href="{% url 'condition_list' %}">Conditions</a> |
-        <a href="{% url 'symptom_list' %}">Symptoms</a>
-    </nav>
+{% extends 'project/base.html' %}
+{% block title %}{{ case.title }}{% endblock %}
 
-    <hr>
+{% block content %}
+<div class="page-wrapper">
 
-    <p><strong>Patient Alias:</strong> {{ case.patient_alias }}</p>
-    <p><strong>Age:</strong> {{ case.age }}</p>
-    <p><strong>Sex:</strong> {{ case.sex }}</p>
-    <p><strong>Status:</strong> {{ case.case_status }}</p>
-    <p><strong>Chief Complaint:</strong> {{ case.chief_complaint }}</p>
-    <p><strong>Date Started:</strong> {{ case.date_started }}</p>
-    <p><strong>Notes:</strong> {{ case.notes }}</p>
+    <!-- case header -->
+    <div class="page-header flex-between">
+        <div>
+            <h1>{{ case.title }}</h1>
+            <p>
+                Alias: <strong>{{ case.patient_alias }}</strong> &mdash;
+                {{ case.age }}yo {{ case.sex }} &mdash;
+                opened {{ case.date_started }}
+            </p>
+        </div>
+        <div class="btn-row" style="margin-top:0;">
+            <a href="{% url 'update_case' case.pk %}" class="btn btn-warning btn-sm">Edit case</a>
+            <a href="{% url 'delete_case' case.pk %}" class="btn btn-danger btn-sm">Delete</a>
+        </div>
+    </div>
 
-    <p><a href="{% url 'case_list' %}">Back to all cases</a></p>
-</body>
-</html>
+    <!-- core info -->
+    <div class="card">
+        <h2>Case overview</h2>
+        <div class="detail-grid">
+            <span class="field-label">Status</span>
+            <span class="field-value">
+                {% if case.case_status == 'Open' %}
+                    <span class="badge badge-open">Open</span>
+                {% elif case.case_status == 'Investigating' %}
+                    <span class="badge badge-invest">Investigating</span>
+                {% else %}
+                    <span class="badge badge-resolved">Resolved</span>
+                {% endif %}
+            </span>
+
+            <span class="field-label">Chief complaint</span>
+            <span class="field-value">{{ case.chief_complaint }}</span>
+
+            <span class="field-label">Age / Sex</span>
+            <span class="field-value">{{ case.age }} &mdash; {{ case.sex }}</span>
+
+            <span class="field-label">Linked patient</span>
+            <span class="field-value">
+                {% if case.patient %}{{ case.patient }}{% else %}<span class="text-muted">Not linked</span>{% endif %}
+            </span>
+        </div>
+
+        {% if case.notes %}
+            <hr class="divider">
+            <p class="text-small" style="color:#374151;white-space:pre-wrap;">{{ case.notes }}</p>
+        {% endif %}
+    </div>
+
+    <!-- symptoms -->
+    <div class="card">
+        <div class="flex-between" style="margin-bottom:12px;">
+            <h2 style="margin-bottom:0;">Symptoms ({{ symptoms|length }})</h2>
+            <a href="{% url 'add_case_symptom' case.pk %}" class="btn btn-primary btn-sm">+ Add symptom</a>
+        </div>
+        {% if symptoms %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Symptom</th>
+                        <th>Body system</th>
+                        <th>Severity</th>
+                        <th>Frequency</th>
+                        <th>Date noticed</th>
+                        <th>Active</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for cs in symptoms %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'symptom_detail' cs.symptom.pk %}">{{ cs.symptom.name }}</a>
+                        </td>
+                        <td class="text-muted">{{ cs.symptom.body_system }}</td>
+                        <td>
+                            {% if cs.severity <= 3 %}
+                                <span class="severity-dot sev-low"></span>
+                            {% elif cs.severity <= 6 %}
+                                <span class="severity-dot sev-mid"></span>
+                            {% else %}
+                                <span class="severity-dot sev-high"></span>
+                            {% endif %}
+                            {{ cs.severity }}/10
+                        </td>
+                        <td>{{ cs.frequency }}</td>
+                        <td class="text-muted">{{ cs.date_noticed }}</td>
+                        <td>{% if cs.is_active %}&#10003;{% else %}<span class="text-muted">no</span>{% endif %}</td>
+                        <td>
+                            <form method="post" action="{% url 'delete_case_symptom' cs.pk %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button class="btn btn-danger btn-sm" onclick="return confirm('Remove this symptom?')">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="text-muted">No symptoms logged yet.</p>
+        {% endif %}
+    </div>
+
+    <!-- evidence -->
+    <div class="card">
+        <div class="flex-between" style="margin-bottom:12px;">
+            <h2 style="margin-bottom:0;">Evidence ({{ evidence|length }})</h2>
+            <a href="{% url 'add_evidence' case.pk %}" class="btn btn-primary btn-sm">+ Add evidence</a>
+        </div>
+        {% if evidence %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Description</th>
+                        <th>Value</th>
+                        <th>Date</th>
+                        <th>Supports</th>
+                        <th>Contradicts</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for e in evidence %}
+                    <tr>
+                        <td><strong>{{ e.evidence_type }}</strong></td>
+                        <td>{{ e.description|truncatechars:60 }}</td>
+                        <td class="text-muted">{{ e.value_text|default:"—" }}</td>
+                        <td class="text-muted nowrap">{{ e.date_recorded }}</td>
+                        <td>{{ e.supports_condition|default:"—" }}</td>
+                        <td>{{ e.contradicts_condition|default:"—" }}</td>
+                        <td>
+                            <a href="{% url 'update_evidence' e.pk %}" class="btn btn-outline btn-sm">Edit</a>
+                            <a href="{% url 'delete_evidence' e.pk %}" class="btn btn-danger btn-sm">Del</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="text-muted">No evidence recorded yet.</p>
+        {% endif %}
+    </div>
+
+    <!-- differential diagnosis -->
+    <div class="card">
+        <div class="flex-between" style="margin-bottom:12px;">
+            <h2 style="margin-bottom:0;">Differential diagnosis ({{ conditions|length }})</h2>
+            <a href="{% url 'add_case_condition' case.pk %}" class="btn btn-primary btn-sm">+ Add condition</a>
+        </div>
+        {% if conditions %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Condition</th>
+                        <th>Category</th>
+                        <th>Confidence</th>
+                        <th>Status</th>
+                        <th>Last updated</th>
+                        <th>Notes</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for cc in conditions %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'condition_detail' cc.condition.pk %}">{{ cc.condition.name }}</a>
+                        </td>
+                        <td class="text-muted">{{ cc.condition.category }}</td>
+                        <td>
+                            <div class="confidence-wrap">
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill"
+                                         data-score="{{ cc.confidence_score }}"
+                                         style="width:{{ cc.confidence_score }}%;background:{% if cc.confidence_score >= 70 %}#27ae60{% elif cc.confidence_score >= 40 %}#f39c12{% else %}#e74c3c{% endif %};">
+                                    </div>
+                                </div>
+                                <span class="confidence-pct">{{ cc.confidence_score }}%</span>
+                            </div>
+                        </td>
+                        <td>
+                            {% if cc.status == 'Possible' %}
+                                <span class="badge badge-possible">Possible</span>
+                            {% elif cc.status == 'Likely' %}
+                                <span class="badge badge-likely">Likely</span>
+                            {% elif cc.status == 'Confirmed' %}
+                                <span class="badge badge-confirmed">Confirmed</span>
+                            {% else %}
+                                <span class="badge badge-ruledout">Ruled Out</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted text-small nowrap">{{ cc.last_updated|date:"M d, Y" }}</td>
+                        <td class="text-small">{{ cc.reasoning_notes|truncatechars:40|default:"—" }}</td>
+                        <td>
+                            <a href="{% url 'update_case_condition' cc.pk %}" class="btn btn-outline btn-sm">Update</a>
+                            <a href="{% url 'delete_case_condition' cc.pk %}" class="btn btn-danger btn-sm">Del</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="text-muted">No conditions in the differential yet.</p>
+        {% endif %}
+    </div>
+
+    <div class="btn-row">
+        <a href="{% url 'doctor_case_list' %}" class="btn btn-outline">&larr; Back to my cases</a>
+    </div>
+
+</div>
+{% endblock %}

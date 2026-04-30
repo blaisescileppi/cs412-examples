@@ -1,30 +1,57 @@
-<!--project/templates/project/symptom_list.html-->
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Symptoms</title>
-</head>
-<body>
-    <h1>All Symptoms</h1>
+<!-- project/templates/project/symptom_list.html
+     Public listing of all symptoms. Can be filtered by body system. -->
 
-    <nav>
-        <a href="{% url 'case_list' %}">Cases</a> |
-        <a href="{% url 'condition_list' %}">Conditions</a> |
-        <a href="{% url 'symptom_list' %}">Symptoms</a>
-    </nav>
+{% extends 'project/base.html' %}
+{% block title %}Symptoms Reference{% endblock %}
 
-    <hr>
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1>Symptoms Reference</h1>
+        <p>Browse all symptoms by body system.</p>
+    </div>
 
-    {% if symptoms %}
-        <ul>
-            {% for symptom in symptoms %}
-                <li>
-                    {{ symptom.name }} — {{ symptom.body_system }}
-                </li>
+    <!-- body system filter -->
+    <div class="filter-bar">
+        <div>
+            <label>Body system</label>
+            <select onchange="location.href='?body_system='+this.value">
+                <option value="">All systems</option>
+                {% for val, label in body_systems %}
+                    <option value="{{ val }}" {% if selected_system == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% if selected_system %}
+            <a href="{% url 'symptom_list' %}" class="btn btn-outline btn-sm">Clear filter</a>
+        {% endif %}
+    </div>
+
+    <div class="card" style="padding:0;">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Body system</th>
+                    <th>Common</th>
+                    <th>Description</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for sym in symptoms %}
+                <tr>
+                    <td><a href="{% url 'symptom_detail' sym.pk %}"><strong>{{ sym.name }}</strong></a></td>
+                    <td>{{ sym.body_system }}</td>
+                    <td>{% if sym.is_common %}&#10003;{% else %}&mdash;{% endif %}</td>
+                    <td class="text-small text-muted">{{ sym.description|truncatechars:80 }}</td>
+                    <td><a href="{% url 'symptom_detail' sym.pk %}" class="btn btn-outline btn-sm">Details</a></td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5" class="text-muted" style="padding:20px;">No symptoms found.</td></tr>
             {% endfor %}
-        </ul>
-    {% else %}
-        <p>No symptoms found.</p>
-    {% endif %}
-</body>
-</html>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

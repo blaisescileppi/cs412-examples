@@ -1,0 +1,109 @@
+<!-- project/templates/project/patient_dashboard.html
+     Main landing page after a patient logs in. Shows total appointment
+     count, a breakdown by doctor, and five most recent cases. -->
+
+{% extends 'project/base.html' %}
+{% block title %}Dashboard — {{ patient }}{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1>Hello, {{ patient.first_name }}</h1>
+        <p>Here's a summary of your medical cases.</p>
+    </div>
+
+    <!-- stats -->
+    <div class="stat-row">
+        <div class="stat-box">
+            <div class="stat-number">{{ total_appointments }}</div>
+            <div class="stat-label">Total appointments</div>
+        </div>
+        {% for row in by_doctor %}
+        <div class="stat-box">
+            <div class="stat-number">{{ row.count }}</div>
+            <div class="stat-label">with Dr. {{ row.doctor__last_name }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- quick actions -->
+    <div class="card">
+        <h2>What would you like to do?</h2>
+        <div class="btn-row">
+            <a href="{% url 'patient_symptom_check' %}" class="btn btn-success">How I Feel Today</a>
+            <a href="{% url 'add_patient_note' %}" class="btn btn-outline">Message My Doctor</a>
+            <a href="{% url 'patient_booking' %}" class="btn btn-outline">Book an Appointment</a>
+            <a href="{% url 'patient_appointments' %}" class="btn btn-outline">My Appointments</a>
+            <a href="{% url 'patient_notes_list' %}" class="btn btn-outline">My Notes</a>
+        </div>
+    </div>
+
+    <!-- per-doctor breakdown -->
+    {% if by_doctor %}
+    <div class="card">
+        <h2>Appointments by doctor</h2>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Doctor</th>
+                    <th>Appointments</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for row in by_doctor %}
+                <tr>
+                    <td>Dr. {{ row.doctor__first_name }} {{ row.doctor__last_name }}</td>
+                    <td>{{ row.count }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <!-- recent cases -->
+    <div class="card">
+        <h2>Recent appointments</h2>
+        {% if recent_cases %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Case</th>
+                        <th>Doctor</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for case in recent_cases %}
+                    <tr>
+                        <td><a href="{% url 'case_detail_patient' case.pk %}">{{ case.title }}</a></td>
+                        <td>Dr. {{ case.doctor.last_name }}</td>
+                        <td>
+                            {% if case.case_status == 'Open' %}
+                                <span class="badge badge-open">Open</span>
+                            {% elif case.case_status == 'Investigating' %}
+                                <span class="badge badge-invest">Investigating</span>
+                            {% else %}
+                                <span class="badge badge-resolved">Resolved</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted nowrap">{{ case.date_started }}</td>
+                        <td><a href="{% url 'case_detail_patient' case.pk %}" class="btn btn-outline btn-sm">View</a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="text-muted">No cases linked to your account yet. Ask your doctor to connect your account.</p>
+        {% endif %}
+
+        {% if total_appointments > 5 %}
+        <div class="mt-16">
+            <a href="{% url 'patient_case_list' %}" class="btn btn-outline btn-sm">View all appointments &rarr;</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

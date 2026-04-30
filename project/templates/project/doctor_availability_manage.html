@@ -1,0 +1,123 @@
+<!-- project/templates/project/doctor_availability_manage.html
+     Doctor manages their availability slots. Shows three sections:
+     open upcoming slots (can be deleted), pending appointment requests
+     (can be confirmed or cancelled), and confirmed upcoming appointments. -->
+
+{% extends 'project/base.html' %}
+{% block title %}Availability{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header flex-between">
+        <div>
+            <h1>My Availability</h1>
+            <p>Manage your open slots and respond to appointment requests.</p>
+        </div>
+        <a href="{% url 'add_availability_slot' %}" class="btn btn-success">+ Add slot</a>
+    </div>
+
+    <!-- pending requests — shown prominently at top -->
+    {% if pending_appointments %}
+    <div class="card">
+        <h2>
+            Pending appointment requests
+            <span class="badge badge-ruledout" style="font-size:0.85rem;margin-left:6px;">
+                {{ pending_appointments|length }} waiting
+            </span>
+        </h2>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Patient</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Reason</th>
+                    <th>Requested</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for appt in pending_appointments %}
+                <tr>
+                    <td><strong>{{ appt.patient.first_name }} {{ appt.patient.last_name }}</strong></td>
+                    <td>{{ appt.slot.date }}</td>
+                    <td class="nowrap">{{ appt.slot.start_time|time:"g:i a" }} – {{ appt.slot.end_time|time:"g:i a" }}</td>
+                    <td class="text-small">{{ appt.reason|default:"—"|truncatechars:60 }}</td>
+                    <td class="text-muted text-small nowrap">{{ appt.created_at|date:"M d" }}</td>
+                    <td>
+                        <form method="post" action="{% url 'update_appointment_status' appt.pk 'confirm' %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button class="btn btn-success btn-sm">Confirm</button>
+                        </form>
+                        <form method="post" action="{% url 'update_appointment_status' appt.pk 'cancel' %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button class="btn btn-danger btn-sm">Cancel</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <!-- open upcoming slots -->
+    <div class="card">
+        <h2>Open slots (upcoming)</h2>
+        {% if open_slots %}
+            {% regroup open_slots by date as slots_by_date %}
+            {% for group in slots_by_date %}
+                <div class="slot-group">
+                    <h3>{{ group.grouper|date:"l, F j, Y" }}</h3>
+                    <div class="slot-list">
+                        {% for slot in group.list %}
+                            <span class="slot-chip open">
+                                {{ slot.start_time|time:"g:i a" }} – {{ slot.end_time|time:"g:i a" }}
+                                <a href="{% url 'delete_availability_slot' slot.pk %}"
+                                   style="color:#991b1b;text-decoration:none;font-size:1rem;"
+                                   title="Delete slot">&times;</a>
+                            </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted">
+                No open slots. <a href="{% url 'add_availability_slot' %}">Add some availability.</a>
+            </p>
+        {% endif %}
+    </div>
+
+    <!-- confirmed upcoming appointments -->
+    {% if booked_slots %}
+    <div class="card">
+        <h2>Confirmed appointments (upcoming)</h2>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Patient</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for slot in booked_slots %}
+                <tr>
+                    <td>
+                        {% if slot.appointment %}
+                            {{ slot.appointment.patient.first_name }} {{ slot.appointment.patient.last_name }}
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ slot.date }}</td>
+                    <td class="nowrap">{{ slot.start_time|time:"g:i a" }} – {{ slot.end_time|time:"g:i a" }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

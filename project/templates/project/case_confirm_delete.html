@@ -1,0 +1,27 @@
+<!-- project/templates/project/case_confirm_delete.html
+     Confirmation page before permanently deleting a case. -->
+
+{% extends 'project/base.html' %}
+{% block title %}Delete Case{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1>Delete Case</h1>
+    </div>
+    <div class="card form-wrap">
+        <div class="alert alert-error">
+            <strong>This action cannot be undone.</strong> Deleting this case will also remove
+            all associated symptoms, evidence, and conditions.
+        </div>
+        <p>Are you sure you want to delete <strong>{{ object.title }}</strong>?</p>
+        <form method="post">
+            {% csrf_token %}
+            <div class="btn-row">
+                <button type="submit" class="btn btn-danger">Yes, delete permanently</button>
+                <a href="{% url 'case_detail' object.pk %}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

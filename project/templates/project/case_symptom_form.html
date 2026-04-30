@@ -1,0 +1,29 @@
+<!-- project/templates/project/case_symptom_form.html
+     Form to link a symptom to a case. Shows which case is being edited
+     and links to the symptom reference list for lookup. -->
+
+{% extends 'project/base.html' %}
+{% block title %}Add Symptom — {{ case.title }}{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1>Add Symptom</h1>
+        <p>
+            Case: <a href="{% url 'case_detail' case.pk %}">{{ case.title }}</a> &mdash;
+            <a href="{% url 'symptom_list' %}" target="_blank">Browse symptom list</a>
+        </p>
+    </div>
+
+    <div class="card form-wrap">
+        <form method="post" class="django-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="btn-row">
+                <button type="submit" class="btn btn-success">Add symptom</button>
+                <a href="{% url 'case_detail' case.pk %}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

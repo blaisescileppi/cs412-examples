@@ -1,30 +1,67 @@
-<!--project/templates/project/condition_list.html-->
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Conditions</title>
-</head>
-<body>
-    <h1>All Conditions</h1>
+<!-- project/templates/project/condition_list.html
+     Public listing of all conditions. Can be filtered by category. -->
 
-    <nav>
-        <a href="{% url 'case_list' %}">Cases</a> |
-        <a href="{% url 'condition_list' %}">Conditions</a> |
-        <a href="{% url 'symptom_list' %}">Symptoms</a>
-    </nav>
+{% extends 'project/base.html' %}
+{% block title %}Conditions Reference{% endblock %}
 
-    <hr>
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1>Conditions Reference</h1>
+        <p>All medical conditions in the system. Filter by category below.</p>
+    </div>
 
-    {% if conditions %}
-        <ul>
-            {% for condition in conditions %}
-                <li>
-                    {{ condition.name }} — {{ condition.category }} — Red Flag: {{ condition.red_flag_level }}
-                </li>
+    <!-- category filter -->
+    <div class="filter-bar">
+        <div>
+            <label>Category</label>
+            <select onchange="location.href='?category='+this.value">
+                <option value="">All categories</option>
+                {% for val, label in categories %}
+                    <option value="{{ val }}" {% if selected_category == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% if selected_category %}
+            <a href="{% url 'condition_list' %}" class="btn btn-outline btn-sm">Clear filter</a>
+        {% endif %}
+    </div>
+
+    <div class="card" style="padding:0;">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Red flag</th>
+                    <th>Age group</th>
+                    <th>Typical duration</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for cond in conditions %}
+                <tr>
+                    <td><a href="{% url 'condition_detail' cond.pk %}"><strong>{{ cond.name }}</strong></a></td>
+                    <td>{{ cond.category }}</td>
+                    <td>
+                        {% if cond.red_flag_level == 'High' %}
+                            <span class="badge badge-high">High</span>
+                        {% elif cond.red_flag_level == 'Medium' %}
+                            <span class="badge badge-medium">Medium</span>
+                        {% else %}
+                            <span class="badge badge-low">Low</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-muted">{{ cond.common_age_group|default:"—" }}</td>
+                    <td class="text-muted">{{ cond.typical_duration|default:"—" }}</td>
+                    <td><a href="{% url 'condition_detail' cond.pk %}" class="btn btn-outline btn-sm">Details</a></td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6" class="text-muted" style="padding:20px;">No conditions found.</td></tr>
             {% endfor %}
-        </ul>
-    {% else %}
-        <p>No conditions found.</p>
-    {% endif %}
-</body>
-</html>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

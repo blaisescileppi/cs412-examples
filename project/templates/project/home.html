@@ -1,0 +1,43 @@
+<!-- project/templates/project/home.html
+     Landing page. Shows two login cards (doctor / patient) and
+     links to create new accounts. -->
+
+{% extends 'project/base.html' %}
+{% block title %}Medical Mystery Solver{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="hero">
+        <h1>Medical Mystery Solver</h1>
+        <p>
+            A case-management tool for tracking patient symptoms, evidence,
+            and possible diagnoses over time. Doctors build the picture;
+            patients stay in the loop.
+        </p>
+
+        <div class="login-cards">
+            <div class="login-card">
+                <div class="icon">&#128084;</div>
+                <h2>Doctor</h2>
+                <p>Create and manage cases, log symptoms and evidence, and track possible diagnoses.</p>
+                <a href="{% url 'login_doctor' %}" class="btn btn-primary" style="display:block;margin-bottom:10px;">Log in as Doctor</a>
+                <a href="{% url 'register_doctor' %}" class="btn btn-outline btn-sm">Create doctor account</a>
+            </div>
+
+            <div class="login-card">
+                <div class="icon">&#128100;</div>
+                <h2>Patient</h2>
+                <p>View your cases and see what your doctor has recorded about your symptoms and conditions.</p>
+                <a href="{% url 'login_patient' %}" class="btn btn-blue" style="display:block;margin-bottom:10px;">Log in as Patient</a>
+                <a href="{% url 'register_patient' %}" class="btn btn-outline btn-sm">Create patient account</a>
+            </div>
+        </div>
+
+        <p class="text-muted text-small">
+            Reference data &mdash;
+            <a href="{% url 'condition_list' %}">Conditions</a> &middot;
+            <a href="{% url 'symptom_list' %}">Symptoms</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

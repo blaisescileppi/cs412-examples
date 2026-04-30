@@ -1,0 +1,33 @@
+<!-- project/templates/project/patient_note_form.html
+     Patient composes a note to one of their doctors. The doctor and case
+     dropdowns are pre-filtered to only show relevant records. -->
+
+{% extends 'project/base.html' %}
+{% block title %}Send a Note{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1>Send a Note to Your Doctor</h1>
+        <p>Your doctor will see this message the next time they log in.</p>
+    </div>
+
+    <div class="card form-wrap">
+        {% if not form.doctor.field.queryset.exists %}
+            <div class="alert alert-info">
+                You don't have any linked cases yet, so there are no doctors to message.
+                Ask your doctor to link your patient account to one of your cases first.
+            </div>
+        {% else %}
+            <form method="post" class="django-form">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="btn-row">
+                    <button type="submit" class="btn btn-primary">Send note</button>
+                    <a href="{% url 'patient_notes_list' %}" class="btn btn-outline">Cancel</a>
+                </div>
+            </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

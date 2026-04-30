@@ -1,0 +1,26 @@
+<!-- project/templates/project/case_form.html
+     Shared create/update form for a medical case. The 'action' variable
+     is passed from the view to label the submit button correctly. -->
+
+{% extends 'project/base.html' %}
+{% block title %}{{ action }} Case{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1>{{ action }} Case</h1>
+        <p>Fill in the patient information and chief complaint.</p>
+    </div>
+
+    <div class="card form-wrap">
+        <form method="post" class="django-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="btn-row">
+                <button type="submit" class="btn btn-success">{{ action }} case</button>
+                <a href="{% url 'doctor_case_list' %}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

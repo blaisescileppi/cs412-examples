@@ -1,0 +1,67 @@
+<!-- project/templates/project/patient_symptom_check.html
+     Patient checks off which symptoms they're currently experiencing.
+     Submitting creates one PatientSymptomCheck record per selected symptom.
+     Today's already-reported symptoms are shown below the form. -->
+
+{% extends 'project/base.html' %}
+{% block title %}How I Feel Today{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1>How are you feeling today?</h1>
+        <p>Check all symptoms you're currently experiencing so your doctor can see them.</p>
+    </div>
+
+    {% if todays_checks %}
+    <div class="card">
+        <h2>Already reported today</h2>
+        <div class="slot-list">
+            {% for check in todays_checks %}
+                <span class="slot-chip open">{{ check.symptom.name }}</span>
+            {% endfor %}
+        </div>
+        <p class="text-muted text-small mt-8">
+            You already reported {{ todays_checks|length }} symptom{{ todays_checks|length|pluralize }} today.
+            Submitting the form again will add any new selections.
+        </p>
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <form method="post">
+            {% csrf_token %}
+
+            {% if form.symptoms.errors %}
+                <div class="alert alert-error">{{ form.symptoms.errors }}</div>
+            {% endif %}
+
+            <p style="font-weight:600;margin-bottom:12px;">
+                Select everything that applies right now:
+            </p>
+
+            <!-- Render checkboxes in a responsive grid instead of a plain list -->
+            <div class="checkbox-grid">
+                {% for checkbox in form.symptoms %}
+                    <label>
+                        {{ checkbox.tag }}
+                        {{ checkbox.choice_label }}
+                    </label>
+                {% endfor %}
+            </div>
+
+            <hr class="divider">
+
+            <div class="form-group">
+                <label for="{{ form.notes.id_for_label }}">{{ form.notes.label }}</label>
+                {{ form.notes }}
+            </div>
+
+            <div class="btn-row">
+                <button type="submit" class="btn btn-success">Submit symptoms</button>
+                <a href="{% url 'patient_dashboard' %}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

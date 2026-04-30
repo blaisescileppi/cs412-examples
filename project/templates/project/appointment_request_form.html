@@ -1,0 +1,39 @@
+<!-- project/templates/project/appointment_request_form.html
+     Patient confirms and submits a request for a specific availability slot.
+     Shows the slot details and a reason field before creating the Appointment. -->
+
+{% extends 'project/base.html' %}
+{% block title %}Request Appointment{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1>Request Appointment</h1>
+        <p>Confirm the slot below and add an optional reason for your visit.</p>
+    </div>
+
+    <div class="card form-wrap">
+        <div style="margin-bottom:20px;padding:16px;background:#f0f9f4;border-radius:8px;border-left:4px solid #27ae60;">
+            <p style="margin:0 0 6px;font-size:0.85rem;color:#555;text-transform:uppercase;letter-spacing:.05em;">Appointment details</p>
+            <p style="margin:0;font-size:1.1rem;font-weight:600;">
+                Dr. {{ slot.doctor.first_name }} {{ slot.doctor.last_name }}
+                <span style="font-weight:normal;color:#555;">&mdash; {{ slot.doctor.specialization }}</span>
+            </p>
+            <p style="margin:4px 0 0;color:#333;">
+                {{ slot.date|date:"l, F j, Y" }}
+                &nbsp;&bull;&nbsp;
+                {{ slot.start_time|time:"g:i a" }} &ndash; {{ slot.end_time|time:"g:i a" }}
+            </p>
+        </div>
+
+        <form method="post" class="django-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="btn-row">
+                <button type="submit" class="btn btn-success">Send Request</button>
+                <a href="{% url 'patient_booking' %}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
